@@ -1,5 +1,8 @@
 const { initDB, saveDB } = require("../config/database");
 const { hasActiveCollectorPet } = require("./pets.repository");
+const { getGodBonusForPlayer } = require("./ranking.repository");
+const { getSectorDominationBonus } = require("./domination.repository");
+const { rewardCombatCrystal } = require("./crystal.repository");
 
 const CRYSTAL_TABLE = [
   { rank: "F", gold: 50, chance: 90 },
@@ -111,14 +114,26 @@ async function killMonster({ playerId, monsterId }) {
 
   const playerRow = playerResult[0].values[0];
   const monsterRow = monsterResult[0].values[0];
-  const drop = rollCrystal();
+  const baseDrop = rollCrystal();
   const collectedByPet = await hasActiveCollectorPet(playerId);
+  const godBonus = await getGodBonusForPlayer(playerId);
+  const dominationBonus = await getSectorDominationBonus(monsterRow[2]);
+
+  const godBonusGold = Math.floor(
+    baseDrop.gold * (Number(godBonus.bonus_gold_percent || 0) / 100)
+  );
+
+  const sectorBonusGold = Math.floor(
+    baseDrop.gold * (Number(dominationBonus.gold_bonus_percent || 0) / 100)
+  );
+
+  const finalGold = baseDrop.gold + godBonusGold + sectorBonusGold;
 
   db.run(
     `UPDATE currencies
      SET gold = gold + ?
      WHERE player_id = ?;`,
-    [drop.gold, Number(playerId)]
+    [finalGold, Number(playerId)]
   );
 
   db.run(
@@ -139,8 +154,8 @@ async function killMonster({ playerId, monsterId }) {
     [
       Number(playerId),
       Number(monsterId),
-      drop.rank,
-      drop.gold,
+      baseDrop.rank,
+      finalGold,
       collectedByPet ? 1 : 0
     ]
   );
@@ -156,13 +171,19 @@ async function killMonster({ playerId, monsterId }) {
     [
       Number(playerId),
       Number(monsterId),
-      drop.rank,
-      drop.gold,
+      baseDrop.rank,
+      finalGold,
       collectedByPet ? 1 : 0
     ]
   );
 
   saveDB();
+
+  const crystalReward = await rewardCombatCrystal({
+    playerId: Number(playerId),
+    monsterId: Number(monsterId),
+    sectorId: Number(monsterRow[2])
+  });
 
   return {
     player: {
@@ -177,8 +198,17 @@ async function killMonster({ playerId, monsterId }) {
       name: monsterRow[1],
       sector: monsterRow[2]
     },
-    drop,
-    collected_by_pet: collectedByPet
+    drop: {
+      rank: baseDrop.rank,
+      gold: finalGold,
+      base_gold: baseDrop.gold,
+      god_bonus_gold: godBonusGold,
+      sector_bonus_gold: sectorBonusGold
+    },
+    crystal_reward: crystalReward,
+    collected_by_pet: collectedByPet,
+    god_status: godBonus,
+    sector_domination: dominationBonus
   };
 }
 
