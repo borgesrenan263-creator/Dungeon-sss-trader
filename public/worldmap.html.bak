@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nexus Obsidian Interactive Atlas</title>
+<style>
+body{
+margin:0;
+background:#07111f;
+color:#f3e4b0;
+font-family:Georgia,serif;
+overflow-x:hidden;
+}
+
+header{
+padding:20px;
+text-align:center;
+background:#08121f;
+}
+
+header h1{
+margin:0;
+font-size:22px;
+}
+
+header p{
+margin:8px 0 0 0;
+font-size:12px;
+color:#d5c38e;
+}
+
+#topbar{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+justify-content:center;
+margin-top:12px;
+}
+
+.badge{
+padding:6px 10px;
+border-radius:999px;
+border:1px solid rgba(243,228,176,.14);
+background:rgba(18,26,40,.92);
+font-size:12px;
+}
+
+#atlas-shell{
+width:95%;
+max-width:900px;
+margin:16px auto;
+overflow:hidden;
+border-radius:14px;
+position:relative;
+background:#0c1626;
+touch-action:none;
+box-shadow:0 20px 50px rgba(0,0,0,.32);
+}
+
+#atlas-stage{
+position:relative;
+transform-origin:0 0;
+will-change:transform;
+}
+
+#atlas{
+position:relative;
+width:100%;
+max-width:900px;
+margin:auto;
+}
+
+#atlas img{
+width:100%;
+display:block;
+border-radius:14px;
+pointer-events:none;
+user-select:none;
+-webkit-user-drag:none;
+}
+
+.rune{
+position:absolute;
+transform:translate(-50%,-50%);
+width:18px;
+height:18px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:9px;
+cursor:pointer;
+border:1px solid rgba(255,255,255,.15);
+color:#eee;
+background:rgba(40,40,40,.35);
+backdrop-filter:blur(2px);
+transition:.25s;
+box-shadow:
+0 2px 6px rgba(0,0,0,.6),
+inset 0 0 4px rgba(255,255,255,.05);
+z-index:5;
+}
+
+.rune:hover,
+.rune:active{
+transform:translate(-50%,-50%) scale(1.3);
+box-shadow:
+0 0 8px rgba(255,215,120,.7),
+0 0 16px rgba(255,180,80,.5);
+}
+
+.sector{background:rgba(63,108,79,.55);}
+.ruins{background:rgba(108,92,60,.55);}
+.desert{background:rgba(138,122,66,.55);}
+.storm{background:rgba(57,90,130,.55);}
+.eclipse{background:rgba(108,63,135,.55);}
+.crimson{background:rgba(123,47,47,.55);}
+.celestial{background:rgba(170,170,170,.55);}
+.hub{background:rgba(60,139,87,.70); width:22px; height:22px;}
+
+.boss-red{
+background:rgba(122,16,16,.72);
+animation:pulse 2s infinite;
+}
+
+.boss-purple{
+background:rgba(92,59,124,.72);
+animation:pulse 2.5s infinite;
+}
+
+@keyframes pulse{
+0%{box-shadow:0 0 5px rgba(255,0,0,.4);}
+50%{box-shadow:0 0 18px rgba(255,0,0,.85);}
+100%{box-shadow:0 0 5px rgba(255,0,0,.4);}
+}
+
+#controls{
+width:95%;
+max-width:900px;
+margin:8px auto 0 auto;
+display:flex;
+gap:8px;
+justify-content:center;
+flex-wrap:wrap;
+}
+
+.ctrl{
+border:none;
+padding:8px 12px;
+border-radius:10px;
+background:#13233b;
+color:#f3e4b0;
+font-size:12px;
+border:1px solid rgba(243,228,176,.12);
+}
+
+#panel{
+margin:20px auto;
+max-width:900px;
+background:#0b1324;
+padding:16px;
+border-radius:12px;
+width:95%;
+white-space:pre-wrap;
+word-break:break-word;
+}
+
+#tips{
+width:95%;
+max-width:900px;
+margin:0 auto 20px auto;
+text-align:center;
+font-size:12px;
+color:#cbb98b;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🌍 Nexus Obsidian — Interactive Atlas</h1>
+<p>Atlas com zoom, arrasto e runas interativas.</p>
+<div id="topbar">
+<div class="badge" id="nodesBadge">Nodes: ...</div>
+<div class="badge" id="linksBadge">Links: ...</div>
+<div class="badge" id="eventsBadge">Eventos: ...</div>
+</div>
+</header>
+
+<div id="controls">
+<button class="ctrl" id="zoomIn">Zoom +</button>
+<button class="ctrl" id="zoomOut">Zoom -</button>
+<button class="ctrl" id="resetView">Resetar mapa</button>
+</div>
+
+<div id="atlas-shell">
+  <div id="atlas-stage">
+    <div id="atlas">
+      <img src="/atlas-base.png" alt="Mapa Atlas">
+
+      <div class="rune sector" style="left:18%;top:42%;" data-sector="1" data-name="Shadow Forest">ᚠ</div>
+      <div class="rune ruins" style="left:19%;top:58%;" data-sector="2" data-name="Ancient Ruins">ᚱ</div>
+      <div class="rune crimson" style="left:30%;top:40%;" data-sector="3" data-name="Crimson Caverns">ᚲ</div>
+      <div class="rune desert" style="left:38%;top:27%;" data-sector="4" data-name="Obsidian Desert">ᛟ</div>
+      <div class="rune storm" style="left:74%;top:28%;" data-sector="6" data-name="Storm Plateau">ᛋ</div>
+      <div class="rune celestial" style="left:74%;top:50%;" data-sector="8" data-name="Celestial Domain">✧</div>
+      <div class="rune eclipse" style="left:18%;top:80%;" data-sector="5" data-name="Eclipse Valley">ᛖ</div>
+      <div class="rune sector" style="left:36%;top:64%;" data-sector="7" data-name="Void Marsh">ᛞ</div>
+      <div class="rune boss-red" style="left:78%;top:75%;" data-sector="9" data-name="Abyss Gate">☬</div>
+      <div class="rune boss-purple" style="left:74%;top:88%;" data-sector="10" data-name="Galaxy Rift">✦</div>
+      <div class="rune hub" style="left:45%;top:72%;" data-hub="1" data-name="Nexus Obsidian">ᛝ</div>
+    </div>
+  </div>
+</div>
+
+<div id="panel">Toque em uma runa para abrir os detalhes da região.</div>
+
+<div id="tips">
+Arraste com o dedo para mover o atlas. Use zoom +/-. Dê duplo toque no mapa para resetar.
+</div>
+
+<script>
+const panel=document.getElementById("panel")
+const atlasShell=document.getElementById("atlas-shell")
+const atlasStage=document.getElementById("atlas-stage")
+const zoomInBtn=document.getElementById("zoomIn")
+const zoomOutBtn=document.getElementById("zoomOut")
+const resetBtn=document.getElementById("resetView")
+
+let scale=1
+let translateX=0
+let translateY=0
+
+let isDragging=false
+let startX=0
+let startY=0
+let initialX=0
+let initialY=0
+let moved=false
+let lastTap=0
+
+function setPanel(text){
+panel.textContent=text
+}
+
+function updateTransform(){
+atlasStage.style.transform=`translate(${translateX}px, ${translateY}px) scale(${scale})`
+}
+
+function clampScale(value){
+if(value<1) return 1
+if(value>3) return 3
+return value
+}
+
+function resetView(){
+scale=1
+translateX=0
+translateY=0
+updateTransform()
+}
+
+function zoom(delta){
+scale=clampScale(scale+delta)
+updateTransform()
+}
+
+function travelEffect(x,y){
+const fx=document.createElement("div")
+fx.style.position="absolute"
+fx.style.left=x
+fx.style.top=y
+fx.style.width="10px"
+fx.style.height="10px"
+fx.style.borderRadius="50%"
+fx.style.background="gold"
+fx.style.boxShadow="0 0 20px gold"
+fx.style.transform="translate(-50%,-50%)"
+fx.style.zIndex="20"
+document.getElementById("atlas").appendChild(fx)
+setTimeout(()=>fx.remove(),1000)
+}
+
+function bindRunes(){
+document.querySelectorAll(".rune").forEach(el=>{
+el.addEventListener("click",async(e)=>{
+if(moved){
+e.preventDefault()
+e.stopPropagation()
+return
+}
+
+travelEffect(el.style.left,el.style.top)
+
+const hub=el.getAttribute("data-hub")
+const sectorId=el.getAttribute("data-sector")
+const name=el.getAttribute("data-name")
+
+if(hub){
+setPanel("Local: "+name+"\nTipo: Hub Central")
+return
+}
+
+try{
+const res=await fetch("/worldmap/sector/"+sectorId)
+const data=await res.json()
+setPanel("Área: "+name+"\n\n"+JSON.stringify(data,null,2))
+}catch(err){
+setPanel("Erro ao carregar região: "+err.message)
+}
+})
+})
+}
+
+function bindMapControls(){
+atlasShell.addEventListener("mousedown",(e)=>{
+isDragging=true
+moved=false
+startX=e.clientX
+startY=e.clientY
+initialX=translateX
+initialY=translateY
+})
+
+window.addEventListener("mousemove",(e)=>{
+if(!isDragging) return
+const dx=e.clientX-startX
+const dy=e.clientY-startY
+if(Math.abs(dx)>4 || Math.abs(dy)>4) moved=true
+translateX=initialX+dx
+translateY=initialY+dy
+updateTransform()
+})
+
+window.addEventListener("mouseup",()=>{
+isDragging=false
+setTimeout(()=>{moved=false},80)
+})
+
+atlasShell.addEventListener("touchstart",(e)=>{
+const now=Date.now()
+if(now-lastTap<280){
+resetView()
+}
+lastTap=now
+
+if(e.touches.length===1){
+isDragging=true
+moved=false
+startX=e.touches[0].clientX
+startY=e.touches[0].clientY
+initialX=translateX
+initialY=translateY
+}
+},{passive:true})
+
+atlasShell.addEventListener("touchmove",(e)=>{
+if(!isDragging || e.touches.length!==1) return
+const dx=e.touches[0].clientX-startX
+const dy=e.touches[0].clientY-startY
+if(Math.abs(dx)>4 || Math.abs(dy)>4) moved=true
+translateX=initialX+dx
+translateY=initialY+dy
+updateTransform()
+},{passive:true})
+
+atlasShell.addEventListener("touchend",()=>{
+isDragging=false
+setTimeout(()=>{moved=false},80)
+})
+
+atlasShell.addEventListener("wheel",(e)=>{
+e.preventDefault()
+if(e.deltaY<0){
+zoom(0.15)
+}else{
+zoom(-0.15)
+}
+},{passive:false})
+}
+
+async function loadTopStats(){
+try{
+const [worldRes,linksRes,eventsRes]=await Promise.all([
+fetch("/worldmap/world"),
+fetch("/worldmap/links"),
+fetch("/worldmap/events")
+])
+
+const world=await worldRes.json()
+const links=await linksRes.json()
+const events=await eventsRes.json()
+
+document.getElementById("nodesBadge").textContent="Nodes: "+(world.total_nodes||0)
+document.getElementById("linksBadge").textContent="Links: "+(links.total||0)
+document.getElementById("eventsBadge").textContent="Eventos: "+(events.total||0)
+}catch(err){
+setPanel("Erro ao carregar estatísticas: "+err.message)
+}
+}
+
+zoomInBtn.addEventListener("click",()=>zoom(0.2))
+zoomOutBtn.addEventListener("click",()=>zoom(-0.2))
+resetBtn.addEventListener("click",resetView)
+
+bindRunes()
+bindMapControls()
+loadTopStats()
+updateTransform()
+</script>
+
+</body>
+</html>

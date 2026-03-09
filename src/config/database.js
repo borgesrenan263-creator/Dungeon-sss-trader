@@ -2,33 +2,36 @@ const initSqlJs = require("sql.js");
 const fs = require("fs");
 const path = require("path");
 
-let dbInstance = null;
+const dbFile = path.join(__dirname, "../../database.sqlite");
+
+let db = null;
 
 async function initDB() {
-  if (dbInstance) return dbInstance;
+  const SQL = await initSqlJs();
 
-  const SQL = await initSqlJs({});
-  const dbPath = path.join(process.cwd(), "database", "game.db");
-
-  if (fs.existsSync(dbPath)) {
-    const fileBuffer = fs.readFileSync(dbPath);
-    dbInstance = new SQL.Database(fileBuffer);
+  if (fs.existsSync(dbFile)) {
+    const fileBuffer = fs.readFileSync(dbFile);
+    db = new SQL.Database(fileBuffer);
   } else {
-    dbInstance = new SQL.Database();
+    db = new SQL.Database();
   }
 
-  return dbInstance;
+  return db;
 }
 
 function saveDB() {
-  if (!dbInstance) return;
-
-  const data = dbInstance.export();
+  if (!db) return;
+  const data = db.export();
   const buffer = Buffer.from(data);
-  fs.writeFileSync(path.join(process.cwd(), "database", "game.db"), buffer);
+  fs.writeFileSync(dbFile, buffer);
+}
+
+function getDB() {
+  return db;
 }
 
 module.exports = {
   initDB,
+  getDB,
   saveDB
 };

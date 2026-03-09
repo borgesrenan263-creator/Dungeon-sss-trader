@@ -408,7 +408,128 @@ bindRunes()
 bindMapControls()
 loadTopStats()
 updateTransform()
+const socket = io();
+
+function ensureRealtimeBox() {
+  let box = document.getElementById("realtime-events-box");
+
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "realtime-events-box";
+    box.style.position = "fixed";
+    box.style.right = "10px";
+    box.style.bottom = "10px";
+    box.style.zIndex = "9999";
+    box.style.width = "220px";
+    box.style.maxHeight = "180px";
+    box.style.overflowY = "auto";
+    box.style.background = "rgba(8,14,24,0.92)";
+    box.style.border = "1px solid rgba(243,228,176,0.20)";
+    box.style.borderRadius = "12px";
+    box.style.padding = "10px";
+    box.style.boxShadow = "0 8px 24px rgba(0,0,0,0.35)";
+    box.style.color = "#f3e4b0";
+    box.style.fontFamily = "Georgia, serif";
+    box.style.fontSize = "12px";
+    box.innerHTML = "<div style='font-weight:bold;margin-bottom:6px;'>🌍 World Events</div>";
+    document.body.appendChild(box);
+  }
+
+  return box;
+}
+
+function pushRealtimeEvent(event) {
+  const box = ensureRealtimeBox();
+
+  const item = document.createElement("div");
+  item.style.padding = "8px";
+  item.style.marginTop = "8px";
+  item.style.borderRadius = "10px";
+  item.style.background = "rgba(20,30,46,0.92)";
+  item.style.border = "1px solid rgba(243,228,176,0.10)";
+  item.style.lineHeight = "1.35";
+
+  const title = event.title || event.type || "World Event";
+  const message = event.message || "Novo evento detectado.";
+  const sector = event.sector ? `📍 ${event.sector}` : "";
+  const reward = event.reward ? `🎁 ${event.reward}` : "";
+
+  item.innerHTML = `
+    <div style="font-weight:bold;color:#ffe7a3;">${title}</div>
+    <div style="margin-top:4px;">${message}</div>
+    <div style="margin-top:4px;opacity:.9;">${sector}</div>
+    <div style="margin-top:2px;opacity:.9;">${reward}</div>
+  `;
+
+  box.insertBefore(item, box.children[1] || null);
+
+  while (box.children.length > 6) {
+    box.removeChild(box.lastChild);
+  }
+}
+
+socket.on("server:hello", (payload) => {
+  pushRealtimeEvent({
+    title: "Realtime Online",
+    message: payload.message || "Conexão com servidor ativa.",
+    sector: payload.socketId ? `Socket: ${payload.socketId}` : "",
+    reward: ""
+  });
+});
+
+socket.on("world:event", (event) => {
+
+function spawnWorldIcon(event){
+
+  const map = document.querySelector("#map-container") || document.body;
+
+  const icon = document.createElement("div");
+
+  icon.style.position = "absolute";
+  icon.style.zIndex = "5000";
+  icon.style.width = "38px";
+  icon.style.height = "38px";
+  icon.style.borderRadius = "50%";
+  icon.style.display = "flex";
+  icon.style.alignItems = "center";
+  icon.style.justifyContent = "center";
+  icon.style.fontSize = "18px";
+  icon.style.boxShadow = "0 0 12px rgba(0,0,0,0.5)";
+  icon.style.pointerEvents = "none";
+
+  let emoji = "✨";
+
+  if(event.type === "boss_spawn") emoji = "🔥";
+  if(event.type === "meteor_strike") emoji = "☄️";
+  if(event.type === "guild_war_alert") emoji = "⚔️";
+  if(event.type === "corruption_zone") emoji = "🧿";
+
+  icon.innerHTML = emoji;
+
+  icon.style.left = (Math.random()*80+10)+"%";
+  icon.style.top = (Math.random()*80+10)+"%";
+
+  map.appendChild(icon);
+
+  setTimeout(()=>{
+    icon.style.transition="all 1s ease";
+    icon.style.opacity="0";
+  },8000);
+
+  setTimeout(()=>{
+    icon.remove();
+  },9000);
+
+}
+
+socket.on("world:event",(event)=>{
+  spawnWorldIcon(event);
+});
+
+  pushRealtimeEvent(event);
+});
 </script>
 
+<script src="/socket.io/socket.io.js"></script>
 </body>
 </html>

@@ -7,6 +7,9 @@ const {
   attackBoss,
   getBossStatus,
   getBossRanking,
+  getBossMvp,
+  getBossHistory,
+  getBossTopById,
   getPlayerRewards,
   claimReward
 } = require("../../repositories/raid.repository");
@@ -93,6 +96,55 @@ router.get("/status", async (req, res) => {
 router.get("/ranking", async (req, res) => {
   try {
     const result = await getBossRanking();
+
+    res.json({
+      ok: true,
+      result
+    });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+router.get("/mvp", async (req, res) => {
+  try {
+    const result = await getBossMvp();
+
+    res.json({
+      ok: true,
+      result
+    });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+router.get("/history", async (req, res) => {
+  try {
+    const history = await getBossHistory();
+
+    res.json({
+      ok: true,
+      total: history.length,
+      history
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+router.get("/top/:bossId", async (req, res) => {
+  try {
+    const result = await getBossTopById(req.params.bossId);
 
     res.json({
       ok: true,

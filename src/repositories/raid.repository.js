@@ -488,6 +488,94 @@ async function getBossRanking() {
   };
 }
 
+async function getBossTopById(bossId) {
+  const db = await initDB();
+
+  const bossResult = db.exec(
+    `SELECT id, boss_name, status, winner_player_id, created_at, ended_at
+     FROM world_bosses
+     WHERE id = ?`,
+    [Number(bossId)]
+  );
+
+  if (!bossResult.length || !bossResult[0].values.length) {
+    throw new Error("boss not found");
+  }
+
+  const boss = bossResult[0].values[0];
+
+  const result = db.exec(
+    `SELECT bp.player_id, p.nickname, p.class, p.level, bp.total_damage
+     FROM boss_participants bp
+     INNER JOIN players p ON p.id = bp.player_id
+     WHERE bp.boss_id = ?
+     ORDER BY bp.total_damage DESC, bp.player_id ASC`,
+    [Number(bossId)]
+  );
+
+  const top = !result.length
+    ? []
+    : result[0].values.map((row, index) => ({
+        rank: index + 1,
+        player_id: row[0],
+        nickname: row[1],
+        class: row[2],
+        level: row[3],
+        total_damage: row[4]
+      }));
+
+  return {
+    boss_id: Number(boss[0]),
+    boss_name: boss[1],
+    status: boss[2],
+    winner_player_id: boss[3],
+    created_at: boss[4],
+    ended_at: boss[5],
+    total_participants: top.length,
+    top
+  };
+}
+
+async function getBossMvp() {
+  const ranking = await getBossRanking();
+
+  if (!ranking.ranking.length) {
+    throw new Error("no participants found for this boss");
+  }
+
+  return {
+    boss_id: Number(ranking.boss_id),
+    mvp: ranking.ranking[0]
+  };
+}
+
+async function getBossHistory() {
+  const db = await initDB();
+
+  const result = db.exec(`
+    SELECT wb.id, wb.boss_name, wb.max_hp, wb.current_hp, wb.status, wb.reward_name,
+           wb.winner_player_id, p.nickname, wb.created_at, wb.ended_at
+    FROM world_bosses wb
+    LEFT JOIN players p ON p.id = wb.winner_player_id
+    ORDER BY wb.id DESC
+  `);
+
+  if (!result.length) return [];
+
+  return result[0].values.map((row) => ({
+    boss_id: row[0],
+    boss_name: row[1],
+    max_hp: row[2],
+    current_hp: row[3],
+    status: row[4],
+    reward_name: row[5],
+    winner_player_id: row[6],
+    winner_nickname: row[7],
+    created_at: row[8],
+    ended_at: row[9]
+  }));
+}
+
 async function getPlayerRewards(playerId) {
   const db = await initDB();
 
@@ -562,6 +650,9 @@ module.exports = {
   attackBoss,
   getBossStatus,
   getBossRanking,
+  getBossMvp,
+  getBossHistory,
+  getBossTopById,
   getPlayerRewards,
   claimReward
 };
