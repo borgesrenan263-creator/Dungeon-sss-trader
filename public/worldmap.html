@@ -533,3 +533,67 @@ socket.on("world:event",(event)=>{
 <script src="/socket.io/socket.io.js"></script>
 </body>
 </html>
+
+<script>
+
+// PROTEÇÃO DE ACESSO AO MAPA
+
+const player = localStorage.getItem("player")
+
+if(!player){
+
+alert("Você precisa selecionar um personagem primeiro!")
+
+window.location.href="/characters.html"
+
+}
+
+</script>
+
+
+<script>
+
+// MOSTRAR PERSONAGEM NO MAPA
+
+const playerData = JSON.parse(localStorage.getItem("player") || "{}")
+
+const header = document.createElement("div")
+
+header.style.padding="10px"
+header.style.marginBottom="10px"
+header.style.fontSize="18px"
+
+header.innerHTML = `
+🧙 ${playerData.nickname || "Herói"}
+ | Classe: ${playerData.class || "-"}
+ | Level: ${playerData.level || 1}
+`
+
+document.body.prepend(header)
+
+</script>
+
+
+<script>
+// Verifica se há personagem selecionado
+const savedPlayer = localStorage.getItem("player");
+
+if (!savedPlayer) {
+  alert("Nenhum personagem selecionado! Voltando para seleção.");
+  window.location.href = "/characters.html";
+}
+
+// Mostrar personagem no topo do mapa
+const p = JSON.parse(savedPlayer || "{}");
+if (p && p.nickname) {
+  const bar = document.createElement("div");
+  bar.style.padding = "10px";
+  bar.style.background = "#091225";
+  bar.style.color = "#e5d4b0";
+  bar.style.fontSize = "16px";
+  bar.style.textAlign = "center";
+  bar.innerHTML = `🧙 ${p.nickname} | Classe: ${p.class} | Level: ${p.level}`;
+  document.body.prepend(bar);
+}
+</script>
+

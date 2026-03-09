@@ -1,355 +1,70 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexus Obsidian — Criação de Personagem</title>
-  <style>
-    * { box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criar Personagem</title>
 
-    body {
-      margin: 0;
-      font-family: Georgia, serif;
-      background:
-        radial-gradient(circle at top, rgba(26,43,78,0.55), rgba(5,10,20,0.96)),
-        linear-gradient(180deg, #09111d, #050913);
-      color: #f3e4b0;
-      min-height: 100vh;
-    }
+<style>
+body{
+margin:0;
+background:#040b16;
+color:#e5d4b0;
+font-family:Georgia,serif;
+text-align:center;
+padding-top:80px;
+}
 
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 20px 14px 40px;
-    }
+input,select{
+padding:12px;
+font-size:16px;
+margin:10px;
+border-radius:6px;
+border:none;
+width:260px;
+max-width:80vw;
+}
 
-    .hero {
-      text-align: center;
-      padding: 18px 10px 8px;
-    }
+button{
+padding:14px 20px;
+font-size:16px;
+background:#d6b26e;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
 
-    .hero h1 {
-      margin: 0;
-      font-size: 42px;
-      line-height: 1.05;
-      color: #f3e4b0;
-      text-shadow: 0 2px 12px rgba(0,0,0,.45);
-    }
-
-    .hero p {
-      margin: 12px auto 0;
-      max-width: 760px;
-      color: #dbc98d;
-      font-size: 18px;
-    }
-
-    .card {
-      background: rgba(10,18,32,0.88);
-      border: 1px solid rgba(243,228,176,0.16);
-      border-radius: 22px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.28);
-      overflow: hidden;
-      margin-top: 18px;
-    }
-
-    .card-head {
-      padding: 16px 18px;
-      border-bottom: 1px solid rgba(243,228,176,0.12);
-      background: linear-gradient(180deg, rgba(22,34,58,0.95), rgba(12,20,38,0.95));
-    }
-
-    .card-head h2 {
-      margin: 0;
-      font-size: 26px;
-      color: #f3e4b0;
-    }
-
-    .card-body {
-      padding: 18px;
-    }
-
-    .grid {
-      display: grid;
-      gap: 16px;
-    }
-
-    .class-grid {
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .class-box {
-      background: rgba(20,30,46,0.92);
-      border: 1px solid rgba(243,228,176,0.12);
-      border-radius: 18px;
-      padding: 16px;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .class-box.active {
-      border-color: rgba(243,228,176,0.48);
-      box-shadow: 0 0 0 2px rgba(243,228,176,0.12), 0 12px 24px rgba(0,0,0,.25);
-      transform: translateY(-2px);
-    }
-
-    .class-box h3 {
-      margin: 0 0 8px;
-      font-size: 24px;
-    }
-
-    .class-box p {
-      margin: 0;
-      color: #d8c88e;
-      line-height: 1.45;
-      font-size: 15px;
-    }
-
-    .field {
-      display: grid;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .field label {
-      font-size: 15px;
-      color: #dbc98d;
-    }
-
-    .field input {
-      width: 100%;
-      background: rgba(7,13,24,0.95);
-      color: #f3e4b0;
-      border: 1px solid rgba(243,228,176,0.14);
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    .field input:focus {
-      border-color: rgba(243,228,176,0.42);
-      box-shadow: 0 0 0 2px rgba(243,228,176,0.10);
-    }
-
-    .preview {
-      display: grid;
-      gap: 12px;
-      background: rgba(14,22,36,0.95);
-      border: 1px solid rgba(243,228,176,0.12);
-      border-radius: 18px;
-      padding: 16px;
-      margin-top: 18px;
-    }
-
-    .preview .name {
-      font-size: 28px;
-      color: #fff0bf;
-    }
-
-    .preview .sub {
-      color: #d8c88e;
-      font-size: 15px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .stat {
-      background: rgba(8,13,24,0.92);
-      border-radius: 14px;
-      padding: 12px;
-      border: 1px solid rgba(243,228,176,0.08);
-    }
-
-    .stat b {
-      display: block;
-      color: #fff0bf;
-      margin-bottom: 4px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 18px;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 16px;
-      padding: 14px 18px;
-      font-size: 16px;
-      font-family: Georgia, serif;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .btn-primary {
-      background: linear-gradient(180deg, #c89d38, #8a6422);
-      color: #fff7d6;
-      box-shadow: 0 10px 20px rgba(0,0,0,.26);
-    }
-
-    .btn-secondary {
-      background: rgba(22,34,58,0.95);
-      color: #f3e4b0;
-      border: 1px solid rgba(243,228,176,0.16);
-    }
-
-    .panel {
-      margin-top: 18px;
-      background: rgba(8,14,24,0.92);
-      border: 1px solid rgba(243,228,176,0.12);
-      border-radius: 18px;
-      padding: 14px;
-      white-space: pre-wrap;
-      color: #d8c88e;
-      min-height: 72px;
-      line-height: 1.45;
-    }
-  </style>
+#status{
+margin:20px auto 0;
+color:#ffcc88;
+white-space:pre-wrap;
+padding:12px;
+max-width:700px;
+text-align:center;
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <h1>⚔️ Nexus Obsidian</h1>
-      <p>Crie seu herói para iniciar a jornada no mundo de Dungeon Reincarnation.</p>
-    </section>
 
-    <section class="card">
-      <div class="card-head">
-        <h2>Criação de Personagem</h2>
-      </div>
+<h1>Criar Personagem</h1>
 
-      <div class="card-body">
-        <div class="grid class-grid" id="classGrid">
-          <div class="class-box active" data-class="Cavaleiro">
-            <h3>🛡️ Cavaleiro</h3>
-            <p>Alta defesa, resistência e domínio de linha de frente.</p>
-          </div>
+<input id="nickname" placeholder="Nome do personagem">
 
-          <div class="class-box" data-class="Mago">
-            <h3>🔮 Mago</h3>
-            <p>Poder arcano elevado, dano mágico e controle de combate.</p>
-          </div>
+<br>
 
-          <div class="class-box" data-class="Caçador">
-            <h3>🏹 Caçador</h3>
-            <p>Agilidade, precisão e vantagem em farm e monstros velozes.</p>
-          </div>
-        </div>
+<select id="playerClass">
+<option value="Cavaleiro">Cavaleiro</option>
+<option value="Mago">Mago</option>
+<option value="Caçador">Caçador</option>
+</select>
 
-        <div class="field">
-          <label for="nickname">Nome do Personagem</label>
-          <input id="nickname" type="text" placeholder="Ex.: Renan Darkblade" />
-        </div>
+<br>
 
-        <div class="preview" id="preview">
-          <div class="name" id="previewName">Herói Sem Nome</div>
-          <div class="sub" id="previewClass">Classe: Cavaleiro</div>
+<button id="createBtn">Criar Personagem</button>
 
-          <div class="stats" id="statsBox">
-            <div class="stat"><b>HP</b><span id="statHp">140</span></div>
-            <div class="stat"><b>Ataque</b><span id="statAtk">12</span></div>
-            <div class="stat"><b>Defesa</b><span id="statDef">16</span></div>
-            <div class="stat"><b>Agilidade</b><span id="statAgi">6</span></div>
-          </div>
-        </div>
+<div id="status">CARREGANDO SCRIPT...</div>
 
-        <div class="actions">
-          <button class="btn btn-primary" id="createBtn">Criar Personagem</button>
-          <button class="btn btn-secondary" id="mapBtn">Ir para o Atlas</button>
-        </div>
+<script src="/index.js"></script>
 
-        <div class="panel" id="resultPanel">Escolha sua classe, defina um nome e prepare seu destino.</div>
-      </div>
-    </section>
-  </div>
-
-  <script>
-    const classGrid = document.getElementById("classGrid");
-    const previewName = document.getElementById("previewName");
-    const previewClass = document.getElementById("previewClass");
-    const nicknameInput = document.getElementById("nickname");
-    const resultPanel = document.getElementById("resultPanel");
-
-    const statHp = document.getElementById("statHp");
-    const statAtk = document.getElementById("statAtk");
-    const statDef = document.getElementById("statDef");
-    const statAgi = document.getElementById("statAgi");
-
-    const presets = {
-      "Cavaleiro": { hp: 140, atk: 12, def: 16, agi: 6 },
-      "Mago": { hp: 95, atk: 18, def: 8, agi: 9 },
-      "Caçador": { hp: 110, atk: 15, def: 10, agi: 14 }
-    };
-
-    let selectedClass = "Cavaleiro";
-
-    function updatePreview() {
-      const nickname = nicknameInput.value.trim() || "Herói Sem Nome";
-      const stats = presets[selectedClass];
-
-      previewName.textContent = nickname;
-      previewClass.textContent = "Classe: " + selectedClass;
-
-      statHp.textContent = stats.hp;
-      statAtk.textContent = stats.atk;
-      statDef.textContent = stats.def;
-      statAgi.textContent = stats.agi;
-    }
-
-    classGrid.querySelectorAll(".class-box").forEach((box) => {
-      box.addEventListener("click", () => {
-        classGrid.querySelectorAll(".class-box").forEach((item) => item.classList.remove("active"));
-        box.classList.add("active");
-        selectedClass = box.getAttribute("data-class");
-        updatePreview();
-      });
-    });
-
-    nicknameInput.addEventListener("input", updatePreview);
-
-    document.getElementById("createBtn").addEventListener("click", async () => {
-      const nickname = nicknameInput.value.trim();
-
-      if (!nickname) {
-        resultPanel.textContent = "Digite um nome para o personagem antes de criar.";
-        return;
-      }
-
-      const payload = {
-        nickname,
-        class: selectedClass
-      };
-
-      resultPanel.textContent = "Criando personagem...";
-
-      try {
-        const res = await fetch("/players/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        resultPanel.textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        resultPanel.textContent = "Erro ao criar personagem: " + err.message;
-      }
-    });
-
-    document.getElementById("mapBtn").addEventListener("click", () => {
-      window.location.href = "/worldmap.html";
-    });
-
-    updatePreview();
-  </script>
 </body>
 </html>

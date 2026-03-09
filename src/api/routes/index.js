@@ -67,3 +67,10 @@ mount("/world", ["world.routes.js"]);
 mount("/worldmap", ["world_map.routes.js", "worldmap.routes.js"]);
 
 module.exports = router;
+
+const playerRoutes = require("./player.routes");
+
+router.use("/player", playerRoutes);
+
+console.log("[routes] mounted /player -> player.routes.js");
+

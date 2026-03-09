@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Hub</title>
+
+<style>
+body{
+margin:0;
+font-family:Georgia,serif;
+background:#050913;
+color:#e5d4b0;
+}
+
+.wrap{
+max-width:900px;
+margin:auto;
+padding:30px;
+}
+
+.card{
+background:#0f1a2e;
+border:1px solid #c8a96a40;
+border-radius:16px;
+padding:20px;
+margin-top:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+}
+
+button{
+padding:14px 18px;
+border:none;
+border-radius:10px;
+margin:10px 10px 0 0;
+cursor:pointer;
+font-size:16px;
+}
+
+.map{
+background:#d6b26e;
+}
+
+.heal{
+background:#2f7a4a;
+color:white;
+}
+
+.logout{
+background:#2c3e66;
+color:white;
+}
+
+.small{
+opacity:.9;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<h1>🏰 Nexus Obsidian Hub</h1>
+
+<div class="grid">
+  <div class="card" id="playerCard">Carregando personagem...</div>
+  <div class="card" id="inventoryCard">Carregando inventário...</div>
+</div>
+
+<div class="card">
+  <h2>Ações</h2>
+  <button class="map" id="mapBtn">Abrir Mapa</button>
+  <button class="heal" id="healBtn">Descansar no Hub</button>
+  <button class="logout" id="logoutBtn">Novo Personagem</button>
+  <p class="small">Descansar no Hub restaura todo o HP.</p>
+</div>
+
+</div>
+
+<script src="/hub.js"></script>
+
+</body>
+</html>

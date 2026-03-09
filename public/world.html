@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Mapa do Mundo</title>
+
+<style>
+body{
+background:#061223;
+color:#d6c28a;
+font-family:serif;
+padding:20px;
+}
+
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+#map{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+}
+
+.zone{
+background:#0e1c33;
+padding:15px;
+border-radius:10px;
+border:1px solid #2a3c5a;
+}
+
+.zone h3{
+margin:0;
+}
+
+.zone p{
+margin:5px 0;
+}
+
+button{
+margin-top:10px;
+background:#c9a96a;
+border:none;
+padding:8px 14px;
+border-radius:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🗺️ Mapa do Mundo</h1>
+
+<div id="map"></div>
+
+<script src="/world.js"></script>
+
+</body>
+</html>

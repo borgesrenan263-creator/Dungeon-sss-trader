@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selecionar Personagem</title>
+</head>
+
+<body>
+
+<h1>Selecionar Personagem</h1>
+
+<div id="playerList"></div>
+
+<button id="startBtn">Start Game</button>
+
+<script>
+
+let selectedPlayer=null
+
+async function loadPlayers(){
+
+const res = await fetch("http://127.0.0.1:8787/player/1")
+
+if(!res.ok) return
+
+const data = await res.json()
+
+const div = document.createElement("div")
+
+div.innerHTML = `
+<b>${data.player.nickname}</b>
+<br>
+Classe: ${data.player.class}
+`
+
+div.onclick = () => {
+
+selectedPlayer = data.player
+
+}
+
+document.getElementById("playerList").appendChild(div)
+
+}
+
+document.getElementById("startBtn").onclick = () => {
+
+if(!selectedPlayer){
+
+alert("Selecione um personagem")
+
+return
+
+}
+
+localStorage.setItem("player", JSON.stringify(selectedPlayer))
+
+window.location.href = "/hub.html"
+
+}
+
+loadPlayers()
+
+</script>
+
+</body>
+</html>
