@@ -1,27 +1,33 @@
 const {
-  createPlayer,
-  gainXp,
-  calculateRank
-} = require("../src/domain/game/systems/progression.system");
+  createProgressionPlayer,
+  applyRewards
+} = require("../src/engine/progression_system");
 
-describe("Player Progression", () => {
-  test("player should gain xp and level up", () => {
-    const player = createPlayer("Hero");
+describe("Progression System", () => {
+  test("player should gain xp, gold and drop", () => {
+    const player = createProgressionPlayer("Hero");
 
-    gainXp(player, 50);
+    applyRewards(player, {
+      xp: 20,
+      gold: 15,
+      drop: "Cristal F"
+    });
 
-    expect(player.level).toBeGreaterThan(1);
+    expect(player.xp).toBe(20);
+    expect(player.gold).toBe(15);
+    expect(player.inventory.includes("Cristal F")).toBe(true);
   });
 
-  test("ranking should sort players by rankPoints", () => {
-    const p1 = createPlayer("A");
-    const p2 = createPlayer("B");
+  test("player should level up", () => {
+    const player = createProgressionPlayer("Hero");
 
-    p1.rankPoints = 30;
-    p2.rankPoints = 10;
+    applyRewards(player, {
+      xp: 120,
+      gold: 10,
+      drop: "Cristal F"
+    });
 
-    const ranked = calculateRank([p1,p2]);
-
-    expect(ranked[0].name).toBe("A");
+    expect(player.level).toBe(2);
+    expect(player.xp).toBe(20);
   });
 });

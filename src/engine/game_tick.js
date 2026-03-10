@@ -1,3 +1,5 @@
+const { spawnMob } = require("./spawn_system");
+
 let tick = 0;
 
 function startGameTick(){
@@ -12,6 +14,7 @@ function startGameTick(){
 
     if(tick % 10 === 0){
       console.log("🌍 Tick mundo");
+      spawnMob();
     }
 
     if(tick % 20 === 0){
