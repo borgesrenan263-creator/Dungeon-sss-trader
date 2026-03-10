@@ -1,0 +1,286 @@
+=== character.routes.js ===
+const express = require("express");
+const router = express.Router();
+
+const {
+  getCharacterStats,
+  gainCharacterXp,
+  allocateStats
+} = require("../../repositories/character.repository");
+
+router.get("/stats/:playerId", async (req, res) => {
+  try {
+    const result = await getCharacterStats(req.params.playerId);
+
+    res.json({
+      ok: true,
+      result
+    });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+router.post("/gain-xp", async (req, res) => {
+  try {
+    const { playerId, xpAmount } = req.body;
+
+    const result = await gainCharacterXp({
+      playerId,
+      xpAmount
+    });
+
+    res.json({
+      ok: true,
+      result
+    });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+router.post("/allocate", async (req, res) => {
+  try {
+    const { playerId, strength, dexterity, intelligence, vitality } = req.body;
+
+    const result = await allocateStats({
+      playerId,
+      strength,
+      dexterity,
+      intelligence,
+      vitality
+    });
+
+    res.json({
+      ok: true,
+      result
+    });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+module.exports = router;
+
+=== character.controller.js ===
+
+=== player.repository.js ===
+let players = [];
+let nextId = 1;
+
+async function createPlayer(nickname, playerClass) {
+  const player = {
+    id: nextId++,
+    nickname,
+    class: playerClass,
+    level: 1,
+    gold: 100,
+    hp: playerClass === "Cavaleiro" ? 140 : playerClass === "Mago" ? 95 : 110
+  };
+
+  players.push(player);
+  return player;
+}
+
+async function getPlayerById(id) {
+  return players.find((p) => p.id === Number(id)) || null;
+}
+
+module.exports = {
+  createPlayer,
+  getPlayerById
+};
+
+=== grep ===
+src/api/routes/players.routes.js:8:  getPlayerById
+src/api/routes/players.routes.js:61:    const player = await getPlayerById(req.params.id);
+src/api/routes/players.routes.js:66:        error: "player not found"
+src/api/routes/items.routes.js:7:  getPlayerInventory
+src/api/routes/items.routes.js:47:    const inventory = await getPlayerInventory(req.params.playerId);
+src/api/routes/ranking.routes.js:6:  getPlayerRank,
+src/api/routes/ranking.routes.js:32:    const playerRank = await getPlayerRank(req.params.id);
+src/api/routes/pets.routes.js:7:  getPlayerPets
+src/api/routes/pets.routes.js:46:    const pets = await getPlayerPets(req.params.playerId);
+src/api/routes/crystal.routes.js:5:  getPlayerCrystals,
+src/api/routes/crystal.routes.js:11:    const crystals = await getPlayerCrystals(req.params.playerId);
+src/api/routes/character.routes.js:5:  getCharacterStats,
+src/api/routes/character.routes.js:7:  allocateStats
+src/api/routes/character.routes.js:10:router.get("/stats/:playerId", async (req, res) => {
+src/api/routes/character.routes.js:12:    const result = await getCharacterStats(req.params.playerId);
+src/api/routes/character.routes.js:51:    const result = await allocateStats({
+src/api/routes/skills.routes.js:6:  getPlayerSkills,
+src/api/routes/skills.routes.js:31:    const result = await getPlayerSkills(req.params.playerId);
+src/api/routes/raid.routes.js:13:  getPlayerRewards,
+src/api/routes/raid.routes.js:163:    const rewards = await getPlayerRewards(req.params.playerId);
+src/api/routes/equipment.routes.js:5:  getPlayerEquipment,
+src/api/routes/equipment.routes.js:8:  getEquipmentStats
+src/api/routes/equipment.routes.js:13:    const equipment = await getPlayerEquipment(req.params.playerId);
+src/api/routes/equipment.routes.js:70:router.get("/stats/:playerId", async (req, res) => {
+src/api/routes/equipment.routes.js:72:    const result = await getEquipmentStats(req.params.playerId);
+src/api/routes/guild_full.routes.js:49:    const { guildId, actorPlayerId, targetPlayerId, newRole } = req.body;
+src/api/routes/guild_full.routes.js:54:      targetPlayerId,
+src/api/routes/guild_full.routes.js:66:    const { guildId, actorPlayerId, targetPlayerId } = req.body;
+src/api/routes/guild_full.routes.js:71:      targetPlayerId
+src/api/routes/party.routes.js:98:    const { actorPlayerId, targetPlayerId } = req.body;
+src/api/routes/party.routes.js:102:      targetPlayerId
+src/api/routes/drops.routes.js:11:  getPlayerDropLog
+src/api/routes/drops.routes.js:130:    const log = await getPlayerDropLog(req.params.playerId);
+src/api/routes/player.routes.js:5:  getPlayerByIdHandler
+src/api/routes/player.routes.js:12:router.get("/:id", getPlayerByIdHandler);
+src/api/controllers/player.controller.js:3:  getPlayerById
+src/api/controllers/player.controller.js:33:async function getPlayerByIdHandler(req, res) {
+src/api/controllers/player.controller.js:35:    const player = await getPlayerById(req.params.id);
+src/api/controllers/player.controller.js:58:  getPlayerByIdHandler
+src/api/repositories/player.repository.js:18:async function getPlayerById(id) {
+src/api/repositories/player.repository.js:24:  getPlayerById
+src/repositories/players.repository.js:77:async function getPlayerById(id) {
+src/repositories/players.repository.js:102:  getPlayerById
+src/repositories/combat.repository.js:101:    throw new Error("player not found");
+src/repositories/items.repository.js:110:    throw new Error("player not found");
+src/repositories/items.repository.js:148:async function getPlayerInventory(playerId) {
+src/repositories/items.repository.js:184:  getPlayerInventory
+src/repositories/ranking.repository.js:82:async function getPlayerRank(playerId) {
+src/repositories/ranking.repository.js:277:  getPlayerRank,
+src/repositories/boss.repository.js:169:    throw new Error("player not found");
+src/repositories/pets.repository.js:63:async function getPlayerPets(playerId) {
+src/repositories/pets.repository.js:106:  getPlayerPets,
+src/repositories/hub.repository.js:178:    throw new Error("player not found");
+src/repositories/guild.repository.js:50:async function getPlayerById(playerId) {
+src/repositories/guild.repository.js:74:async function getPlayerGuildMembership(playerId) {
+src/repositories/guild.repository.js:102:  const player = await getPlayerById(leaderPlayerId);
+src/repositories/guild.repository.js:105:    throw new Error("leader player not found");
+src/repositories/guild.repository.js:108:  const membership = await getPlayerGuildMembership(leaderPlayerId);
+src/repositories/guild.repository.js:219:  const player = await getPlayerById(playerId);
+src/repositories/guild.repository.js:222:    throw new Error("player not found");
+src/repositories/guild.repository.js:225:  const membership = await getPlayerGuildMembership(playerId);
+src/repositories/crystal.repository.js:249:async function getPlayerCrystals(playerId) {
+src/repositories/crystal.repository.js:326:  getPlayerCrystals,
+src/repositories/trade.repository.js:45:async function getPlayerBasic(playerId) {
+src/repositories/trade.repository.js:114:  const p1 = await getPlayerBasic(player1Id);
+src/repositories/trade.repository.js:115:  const p2 = await getPlayerBasic(player2Id);
+src/repositories/trade.repository.js:490:  const p1 = await getPlayerBasic(trade.player1_id);
+src/repositories/trade.repository.js:491:  const p2 = await getPlayerBasic(trade.player2_id);
+src/repositories/city.repository.js:281:    throw new Error("player not found");
+src/repositories/city.repository.js:393:    throw new Error("player not found");
+src/repositories/dungeon.repository.js:151:    throw new Error("player not found");
+src/repositories/character.repository.js:68:async function getCharacterStats(playerId) {
+src/repositories/character.repository.js:79:    throw new Error("player not found");
+src/repositories/character.repository.js:95:  const stats = progressionResult[0].values[0];
+src/repositories/character.repository.js:106:      strength: stats[0],
+src/repositories/character.repository.js:107:      dexterity: stats[1],
+src/repositories/character.repository.js:108:      intelligence: stats[2],
+src/repositories/character.repository.js:109:      vitality: stats[3]
+src/repositories/character.repository.js:111:    stat_points: stats[4],
+src/repositories/character.repository.js:112:    updated_at: stats[5],
+src/repositories/character.repository.js:114:      attack_power: stats[0] * 2 + stats[1],
+src/repositories/character.repository.js:115:      magic_power: stats[2] * 2,
+src/repositories/character.repository.js:116:      max_hp: 100 + stats[3] * 20,
+src/repositories/character.repository.js:117:      crit_chance: stats[1],
+src/repositories/character.repository.js:118:      defense: stats[3] * 2
+src/repositories/character.repository.js:139:    throw new Error("player not found");
+src/repositories/character.repository.js:205:async function allocateStats({ playerId, strength = 0, dexterity = 0, intelligence = 0, vitality = 0 }) {
+src/repositories/character.repository.js:261:  return await getCharacterStats(playerId);
+src/repositories/character.repository.js:267:  getCharacterStats,
+src/repositories/character.repository.js:269:  allocateStats
+src/repositories/skills.repository.js:217:async function getPlayerSkills(playerId) {
+src/repositories/skills.repository.js:284:    throw new Error("player not found");
+src/repositories/skills.repository.js:480:  getPlayerSkills,
+src/repositories/raid.repository.js:143:    throw new Error("player not found");
+src/repositories/raid.repository.js:206:  const stats = db.exec(
+src/repositories/raid.repository.js:213:  if (!stats.length || !stats[0].values.length) {
+src/repositories/raid.repository.js:222:  const row = stats[0].values[0];
+src/repositories/raid.repository.js:339:    throw new Error("player not found");
+src/repositories/raid.repository.js:579:async function getPlayerRewards(playerId) {
+src/repositories/raid.repository.js:656:  getPlayerRewards,
+src/repositories/equipment.repository.js:75:async function getPlayerEquipment(playerId) {
+src/repositories/equipment.repository.js:250:async function getEquipmentStats(playerId) {
+src/repositories/equipment.repository.js:265:  const equipment = await getPlayerEquipment(playerId);
+src/repositories/equipment.repository.js:306:    final_stats: {
+src/repositories/equipment.repository.js:320:  getPlayerEquipment,
+src/repositories/equipment.repository.js:323:  getEquipmentStats
+src/repositories/guild_full.repository.js:72:async function getPlayerGuild(playerId) {
+src/repositories/guild_full.repository.js:134:    throw new Error("leader player not found");
+src/repositories/guild_full.repository.js:139:  const existingGuild = await getPlayerGuild(leaderPlayerId);
+src/repositories/guild_full.repository.js:230:    throw new Error("player not found");
+src/repositories/guild_full.repository.js:235:  const existingGuild = await getPlayerGuild(playerId);
+src/repositories/guild_full.repository.js:269:async function promoteGuildMember({ guildId, actorPlayerId, targetPlayerId, newRole }) {
+src/repositories/guild_full.repository.js:286:  const target = await getGuildMember(guildId, targetPlayerId);
+src/repositories/guild_full.repository.js:300:    [String(newRole), Number(guildId), Number(targetPlayerId)]
+src/repositories/guild_full.repository.js:307:    player_id: Number(targetPlayerId),
+src/repositories/guild_full.repository.js:312:async function kickGuildMember({ guildId, actorPlayerId, targetPlayerId }) {
+src/repositories/guild_full.repository.js:324:  const target = await getGuildMember(guildId, targetPlayerId);
+src/repositories/guild_full.repository.js:341:    [Number(guildId), Number(targetPlayerId)]
+src/repositories/guild_full.repository.js:348:    player_id: Number(targetPlayerId),
+src/repositories/party.repository.js:43:async function getPlayerBasic(playerId) {
+src/repositories/party.repository.js:91:async function getPlayerParty(playerId) {
+src/repositories/party.repository.js:120:  const leader = await getPlayerBasic(leaderPlayerId);
+src/repositories/party.repository.js:122:    throw new Error("leader player not found");
+src/repositories/party.repository.js:125:  const existingParty = await getPlayerParty(leaderPlayerId);
+src/repositories/party.repository.js:203:  const target = await getPlayerBasic(toPlayerId);
+src/repositories/party.repository.js:205:    throw new Error("target player not found");
+src/repositories/party.repository.js:208:  const targetParty = await getPlayerParty(toPlayerId);
+src/repositories/party.repository.js:271:  const existingParty = await getPlayerParty(playerId);
+src/repositories/party.repository.js:313:  const player = await getPlayerBasic(playerId);
+src/repositories/party.repository.js:336:  const party = await getPlayerParty(playerId);
+src/repositories/party.repository.js:378:  const party = await getPlayerParty(playerId);
+src/repositories/party.repository.js:443:async function kickPartyMember({ actorPlayerId, targetPlayerId }) {
+src/repositories/party.repository.js:446:  const actorParty = await getPlayerParty(actorPlayerId);
+src/repositories/party.repository.js:451:  const targetParty = await getPlayerParty(targetPlayerId);
+src/repositories/party.repository.js:469:    [Number(actorParty.party_id), Number(targetPlayerId)]
+src/repositories/party.repository.js:491:    [Number(actorParty.party_id), Number(targetPlayerId)]
+src/repositories/party.repository.js:498:    target_player_id: Number(targetPlayerId),
+src/repositories/party_coop.repository.js:3:const { getPlayerCombatProfile } = require("./combat_core.repository");
+src/repositories/party_coop.repository.js:398:      const profile = await getPlayerCombatProfile(member.player_id);
+src/repositories/party_coop.repository.js:399:      totalPartyPower += Number(profile.final_stats.attack_power || 0)
+src/repositories/party_coop.repository.js:400:        + Number(profile.final_stats.magic_power || 0)
+src/repositories/party_coop.repository.js:401:        + Number(profile.final_stats.defense || 0);
+src/repositories/party_coop.repository.js:613:      const profile = await getPlayerCombatProfile(member.player_id);
+src/repositories/party_coop.repository.js:616:          Number(profile.final_stats.attack_power || 0) +
+src/repositories/party_coop.repository.js:617:          Number(profile.final_stats.magic_power || 0) / 2
+src/repositories/combat_core.repository.js:3:async function getPlayerCombatProfile(playerId) {
+src/repositories/combat_core.repository.js:14:    throw new Error("player not found");
+src/repositories/combat_core.repository.js:87:    final_stats: {
+src/repositories/combat_core.repository.js:98:  getPlayerCombatProfile
+src/repositories/arena.repository.js:3:const { getPlayerCombatProfile } = require("./combat_core.repository");
+src/repositories/arena.repository.js:45:    CREATE TABLE IF NOT EXISTS arena_stats (
+src/repositories/arena.repository.js:58:async function ensureArenaStats(playerId) {
+src/repositories/arena.repository.js:62:    `SELECT id FROM arena_stats WHERE player_id = ?`,
+src/repositories/arena.repository.js:68:      `INSERT INTO arena_stats (
+src/repositories/arena.repository.js:81:async function getPlayerBasic(playerId) {
+src/repositories/arena.repository.js:139:  const player = await getPlayerBasic(playerId);
+src/repositories/arena.repository.js:141:    throw new Error("player not found");
+src/repositories/arena.repository.js:196:  const p1Profile = await getPlayerCombatProfile(first[1]);
+src/repositories/arena.repository.js:197:  const p2Profile = await getPlayerCombatProfile(second[1]);
+src/repositories/arena.repository.js:199:  const p1Hp = Number(p1Profile.final_stats.max_hp || 100);
+src/repositories/arena.repository.js:200:  const p2Hp = Number(p2Profile.final_stats.max_hp || 100);
+src/repositories/arena.repository.js:221:  await ensureArenaStats(first[1]);
+src/repositories/arena.repository.js:222:  await ensureArenaStats(second[1]);
+src/repositories/arena.repository.js:235:  const p1 = await getPlayerBasic(row[1]);
+src/repositories/arena.repository.js:236:  const p2 = await getPlayerBasic(row[2]);
+src/repositories/arena.repository.js:273:  const attackerProfile = await getPlayerCombatProfile(attackerPlayerId);
+src/repositories/arena.repository.js:280:  const defenderProfile = await getPlayerCombatProfile(defenderPlayerId);
+src/repositories/arena.repository.js:283:    Number(attackerProfile.final_stats.attack_power || 0) +
+src/repositories/arena.repository.js:284:    Math.floor(Number(attackerProfile.final_stats.magic_power || 0) / 2);
+src/repositories/arena.repository.js:286:  const defenderDefense = Number(defenderProfile.final_stats.defense || 0);
+src/repositories/arena.repository.js:317:    `UPDATE arena_stats
+src/repositories/arena.repository.js:346:      `UPDATE arena_stats
+src/repositories/arena.repository.js:354:      `UPDATE arena_stats
+src/repositories/arena.repository.js:363:    const attacker = await getPlayerBasic(attackerPlayerId);
+src/repositories/arena.repository.js:364:    const defender = await getPlayerBasic(defenderPlayerId);
+src/repositories/arena.repository.js:486:     FROM arena_stats ast
+src/repositories/drops.repository.js:587:async function getPlayerDropLog(playerId) {
+src/repositories/drops.repository.js:622:  getPlayerDropLog
+src/app.js:48:      stats: cache.getStats()
+src/game/engine.js:15:    player.baseStats.maxHp += 12;
+src/game/engine.js:16:    player.baseStats.atk += 2;
+src/game/engine.js:17:    player.baseStats.def += 1;
+src/game/engine.js:18:    player.baseStats.agi += 1;
