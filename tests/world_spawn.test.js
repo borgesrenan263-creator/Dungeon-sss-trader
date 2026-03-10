@@ -1,12 +1,20 @@
 const { spawnMob } = require("../src/domain/game/engine/world.spawn");
 
 describe("World Spawn", () => {
-  test("should spawn mob scaled to player level", () => {
+  test("should spawn mob for a valid zone", () => {
     const mob = spawnMob(5);
 
-    expect(mob.hp).toBeGreaterThan(0);
-    expect(mob.atk).toBeGreaterThan(0);
-    expect(mob.xp).toBeGreaterThan(0);
-    expect(mob.gold).toBeGreaterThan(0);
+    expect(mob).toBeDefined();
+    expect(mob.name).toBeDefined();
+    expect(typeof mob.name).toBe("string");
+    expect(mob.zone).toBe(5);
+  });
+
+  test("should fallback to zone 1 when zone does not exist", () => {
+    const mob = spawnMob(999);
+
+    expect(mob).toBeDefined();
+    expect(mob.name).toBeDefined();
+    expect(mob.zone).toBe(1);
   });
 });

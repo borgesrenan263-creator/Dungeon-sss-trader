@@ -1,38 +1,24 @@
-const http = require("http");
-const { Server } = require("socket.io");
+const express = require("express");
 
-const app = require("./app");
-const logger = require("./utils/logger");
-const { setIO } = require("./utils/realtime");
-const { startAIGameDirector } = require("./services/ai_game_director");
+const { startEngine } = require("./engine/start_engine");
 
-const PORT = process.env.PORT || 8787;
+const app = express();
 
-const server = http.createServer(app);
+app.use(express.json());
 
-const io = new Server(server, {
-  cors: {
-    origin: "*"
-  }
-});
-
-setIO(io);
-
-io.on("connection", (socket) => {
-  logger.info(`socket connected: ${socket.id}`);
-
-  socket.emit("server:hello", {
-    ok: true,
-    message: "realtime online",
-    socketId: socket.id
-  });
-
-  socket.on("disconnect", () => {
-    logger.info(`socket disconnected: ${socket.id}`);
+app.get("/", (req,res)=>{
+  res.json({
+    server:"Dungeon Isekai Server",
+    status:"online"
   });
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  logger.info(`Server running on port ${PORT}`);
-  startAIGameDirector();
+const PORT = 3000;
+
+app.listen(PORT, () => {
+
+  console.log("🌐 Server rodando na porta", PORT);
+
+  startEngine();
+
 });
