@@ -14,7 +14,7 @@ color:#e5d4b0;
 }
 
 .wrap{
-max-width:900px;
+max-width:1200px;
 margin:auto;
 padding:30px;
 }
@@ -34,12 +34,12 @@ gap:14px;
 }
 
 button{
-padding:14px 18px;
+padding:12px 16px;
 border:none;
 border-radius:10px;
 margin:10px 10px 0 0;
 cursor:pointer;
-font-size:16px;
+font-size:15px;
 }
 
 .map{
@@ -56,8 +56,105 @@ background:#2c3e66;
 color:white;
 }
 
+.equipBtn{
+background:#7c5d2d;
+color:white;
+padding:8px 12px;
+font-size:14px;
+margin-top:8px;
+}
+
+.sellBtn{
+background:#8b3f2f;
+color:white;
+padding:8px 12px;
+font-size:14px;
+margin-top:8px;
+}
+
+.sellCrystalBtn{
+background:#8b6b2f;
+color:white;
+padding:10px 14px;
+font-size:14px;
+margin-top:8px;
+}
+
+.forgeBtn{
+background:#6f4ba8;
+color:white;
+padding:8px 12px;
+font-size:14px;
+margin-top:8px;
+}
+
+.attrBtn{
+background:#2f7a4a;
+color:white;
+padding:8px 12px;
+font-size:14px;
+margin-top:8px;
+}
+
+.item{
+background:#091423;
+padding:12px;
+border-radius:10px;
+border:1px solid #213454;
+margin-bottom:10px;
+}
+
+.slot{
+background:#091423;
+padding:12px;
+border-radius:10px;
+border:1px solid #213454;
+margin-bottom:10px;
+}
+
 .small{
 opacity:.9;
+}
+
+.logBox{
+white-space:pre-wrap;
+line-height:1.4;
+background:#091423;
+padding:12px;
+border-radius:10px;
+border:1px solid #213454;
+min-height:120px;
+}
+
+.crystalLine{
+background:#091423;
+padding:10px;
+border-radius:10px;
+border:1px solid #213454;
+margin-bottom:8px;
+}
+
+.attrRow{
+background:#091423;
+padding:12px;
+border-radius:10px;
+border:1px solid #213454;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+}
+
+.attrInfo{
+line-height:1.4;
+}
+
+.attrActions{
+display:flex;
+align-items:center;
+gap:8px;
+flex-wrap:wrap;
 }
 </style>
 </head>
@@ -72,12 +169,58 @@ opacity:.9;
   <div class="card" id="inventoryCard">Carregando inventário...</div>
 </div>
 
-<div class="card">
-  <h2>Ações</h2>
-  <button class="map" id="mapBtn">Abrir Mapa</button>
-  <button class="heal" id="healBtn">Descansar no Hub</button>
-  <button class="logout" id="logoutBtn">Novo Personagem</button>
-  <p class="small">Descansar no Hub restaura todo o HP.</p>
+<div class="grid">
+  <div class="card">
+    <h2>📈 Atributos</h2>
+    <div id="attributeCard">Carregando atributos...</div>
+  </div>
+
+  <div class="card">
+    <h2>💎 Inventário de Cristais</h2>
+    <div id="crystalCard">Carregando cristais...</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🪙 Comerciante de Cristais</h2>
+    <p>Venda seus cristais por ouro.</p>
+    <div id="crystalSellCard">Carregando comércio...</div>
+  </div>
+
+  <div class="card">
+    <h2>🛡 Equipamentos Equipados</h2>
+    <div id="equippedCard">Carregando equipamentos...</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🎒 Mochila de Equipamentos</h2>
+    <div id="bagCard">Carregando mochila...</div>
+  </div>
+
+  <div class="card">
+    <h2>🔨 Forja</h2>
+    <p>Refine seus equipamentos até +5.</p>
+    <p>Falha em +4 e +5 pode destruir o item.</p>
+    <div id="forgeCard">Carregando forja...</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>📜 Log do Hub</h2>
+    <div id="hubLog" class="logBox">Hub iniciado.</div>
+  </div>
+
+  <div class="card">
+    <h2>Ações</h2>
+    <button class="map" id="mapBtn">Abrir Mapa</button>
+    <button class="heal" id="healBtn">Descansar no Hub</button>
+    <button class="logout" id="logoutBtn">Novo Personagem</button>
+    <p class="small">Descansar no Hub restaura todo o HP.</p>
+  </div>
 </div>
 
 </div>

@@ -70,9 +70,68 @@ background:#7a3340;
 color:#fff;
 }
 
+button.heal{
+background:#2f7a4a;
+color:#fff;
+}
+
+button.auto{
+background:#6f4ba8;
+color:#fff;
+}
+
+button.skill{
+background:#8a5a14;
+color:#fff;
+}
+
+button:disabled{
+opacity:.5;
+cursor:not-allowed;
+}
+
 #log{
 white-space:pre-wrap;
 line-height:1.4;
+}
+
+#deathOverlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.88);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
+padding:20px;
+}
+
+#deathOverlay.show{
+display:flex;
+}
+
+.deathBox{
+max-width:520px;
+width:100%;
+background:#140b12;
+border:1px solid #7a3340;
+border-radius:16px;
+padding:28px;
+text-align:center;
+box-shadow:0 0 30px rgba(0,0,0,.5);
+}
+
+.deathBox h2{
+font-size:34px;
+margin-bottom:10px;
+color:#f0b6c0;
+}
+
+.deathBox p{
+font-size:20px;
+line-height:1.5;
+color:#f3d9df;
+margin:0;
 }
 </style>
 </head>
@@ -103,6 +162,11 @@ line-height:1.4;
   <div class="actions">
     <button id="spawnBtn">Procurar Monstro</button>
     <button id="attackBtn">Atacar</button>
+    <button id="skill1Btn" class="skill">Skill 1</button>
+    <button id="skill2Btn" class="skill">Skill 2</button>
+    <button id="potionBtn" class="heal">Usar Poção</button>
+    <button id="autoAttackBtn" class="auto">Auto Attack: OFF</button>
+    <button id="autoPotionBtn" class="auto">Auto Poção: OFF</button>
     <button id="fleeBtn" class="danger">Fugir</button>
     <button id="hubBtn" class="secondary">Voltar ao Hub</button>
   </div>
@@ -113,6 +177,13 @@ line-height:1.4;
   <div id="log">Entrando no setor...</div>
 </div>
 
+</div>
+
+<div id="deathOverlay">
+  <div class="deathBox">
+    <h2>☠️ Você foi derrotado</h2>
+    <p id="deathText">Retornando ao Hub...</p>
+  </div>
 </div>
 
 <script src="/sector.js"></script>
