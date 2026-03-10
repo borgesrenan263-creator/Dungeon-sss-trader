@@ -1,9 +1,7 @@
-const { simulateCombat } = require("../src/game/combat.simulator");
+const { simulateCombat } = require("../src/domain/game/engine/combat.simulator");
 
 describe("Combat Simulation", () => {
-
   test("player should defeat weak mob", () => {
-
     const player = {
       hp: 120,
       baseStats: {
@@ -23,11 +21,9 @@ describe("Combat Simulation", () => {
     expect(result.winner).toBe("player");
     expect(result.rounds).toBeGreaterThan(0);
     expect(result.log.length).toBeGreaterThan(0);
-
   });
 
   test("combat should produce battle log", () => {
-
     const player = {
       hp: 120,
       baseStats: {
@@ -45,7 +41,5 @@ describe("Combat Simulation", () => {
     const result = simulateCombat(player, mob);
 
     expect(Array.isArray(result.log)).toBe(true);
-
   });
-
 });

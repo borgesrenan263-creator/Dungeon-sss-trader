@@ -2,7 +2,7 @@ const {
   createGameplayPlayer,
   gainXp,
   allocateStats
-} = require("../src/game/gameplay.service");
+} = require("../src/domain/game/services/gameplay.service");
 
 describe("Gameplay Flow", () => {
   test("player should be created with base stats", () => {

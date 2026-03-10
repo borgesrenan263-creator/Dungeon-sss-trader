@@ -1,7 +1,7 @@
 const {
   simulateBattleRound,
   rewardVictory
-} = require("../src/game/engine");
+} = require("../src/domain/game/engine/core.engine");
 
 describe("Combat Flow Engine", () => {
   test("player should damage monster and survive a round", () => {

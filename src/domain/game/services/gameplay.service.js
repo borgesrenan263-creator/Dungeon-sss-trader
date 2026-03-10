@@ -1,4 +1,4 @@
-const { xpNeeded } = require("./engine");
+const { xpNeeded } = require("../engine/core.engine");
 
 function createGameplayPlayer() {
   return {
