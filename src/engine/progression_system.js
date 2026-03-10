@@ -1,3 +1,5 @@
+const { createInventory } = require("./inventory_engine");
+
 function createProgressionPlayer(name) {
   return {
     name,
@@ -5,14 +7,13 @@ function createProgressionPlayer(name) {
     xp: 0,
     xpToNextLevel: 100,
     gold: 0,
-    inventory: []
+    inventory: createInventory()
   };
 }
 
 function applyRewards(player, reward) {
   player.xp += reward.xp;
   player.gold += reward.gold;
-  player.inventory.push(reward.drop);
 
   while (player.xp >= player.xpToNextLevel) {
     player.xp -= player.xpToNextLevel;
