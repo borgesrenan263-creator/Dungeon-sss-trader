@@ -13,6 +13,8 @@ const leaderboardRoutes = require("./leaderboard.routes");
 const analyticsRoutes = require("./analytics.routes");
 const telemetryRoutes = require("./telemetry.routes");
 const realtimeRoutes = require("./realtime.routes");
+const multiplayerRoutes = require("./multiplayer.routes");
+const persistenceRoutes = require("./persistence.routes");
 
 const router = express.Router();
 
@@ -37,5 +39,7 @@ router.use("/leaderboard", leaderboardRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/telemetry", telemetryRoutes);
 router.use("/realtime", realtimeRoutes);
+router.use("/multiplayer", multiplayerRoutes);
+router.use("/persistence", persistenceRoutes);
 
 module.exports = router;
