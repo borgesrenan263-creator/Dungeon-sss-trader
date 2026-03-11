@@ -1,14 +1,20 @@
 const express = require("express");
 const routes = require("./api/routes");
-const { startEngine } = require("./engine/start_engine");
+const { startWorldLoop, getWorldState } = require("./engine/world_loop_engine");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use("/", routes);
 
 app.listen(PORT, () => {
-  console.log("🌐 Server rodando na porta", PORT);
-  startEngine();
+  console.log("Dungeon SSS Trader API running on port", PORT);
+
+  if (process.env.NODE_ENV !== "test") {
+    console.log("🌍 Starting world engine...");
+    startWorldLoop(getWorldState());
+  }
 });
