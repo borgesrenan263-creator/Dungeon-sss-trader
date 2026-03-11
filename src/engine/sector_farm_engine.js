@@ -1,5 +1,4 @@
 function rollMobBySector(sector = 1) {
-
   const mobs = [
     { name: "Slime", baseHp: 30, baseAtk: 3 },
     { name: "Goblin", baseHp: 40, baseAtk: 5 },
@@ -10,23 +9,25 @@ function rollMobBySector(sector = 1) {
 
   const mob = mobs[Math.floor(Math.random() * mobs.length)];
 
-  // Escala por setor
-  const hp = mob.baseHp + (sector * 10);
-  const atk = mob.baseAtk + (sector * 2);
-
   return {
     name: mob.name,
-    hp,
-    atk,
+    hp: mob.baseHp + sector * 10,
+    atk: mob.baseAtk + sector * 2,
     sector
   };
 }
 
-function startFarmEngine() {
-  console.log("🌾 Farm Engine iniciado");
+function createBossMob(sector = 1) {
+  return {
+    name: "Sector Boss",
+    hp: 200 + sector * 40,
+    atk: 20 + sector * 5,
+    sector,
+    isBoss: true
+  };
 }
 
 module.exports = {
   rollMobBySector,
-  startFarmEngine
+  createBossMob
 };
