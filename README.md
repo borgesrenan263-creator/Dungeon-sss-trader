@@ -468,3 +468,15 @@ Realtime systems
 Game simulation engines  
 
 This project was created as a portfolio demonstration of backend engineering capabilities.
+
+## Live API
+
+The backend is deployed online.
+
+API URL
+
+https://dungeon-sss-trader.onrender.com
+
+Health Check
+
+https://dungeon-sss-trader.onrender.com/health
