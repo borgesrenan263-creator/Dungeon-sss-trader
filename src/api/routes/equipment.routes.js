@@ -1,108 +1,55 @@
 const express = require("express");
-const {
-  getPlayerByName
-} = require("../state/game.state");
-const {
-  equipItem,
-  unequipItem,
-  refineItem,
-  getFinalStats
-} = require("../../engine/equipment_engine");
-
 const router = express.Router();
 
-router.get("/:name", (req, res) => {
-  const player = getPlayerByName(req.params.name);
+const { requireBodyFields } = require("../../middlewares/validate.middleware");
+const { ok, fail } = require("../../utils/api.response");
+const {
+  getPlayerByName,
+  addItemToInventory,
+  addDropToInventory,
+  equipItem,
+  refineItem,
+  getEquipmentState
+} = require("../../engine/equipment_engine");
 
-  if (!player) {
-    return res.status(404).json({
-      ok: false,
-      error: "player_not_found"
-    });
-  }
-
-  return res.status(200).json({
-    ok: true,
-    equipment: {
-      equipped: player.equipped,
-      inventory: player.inventory,
-      stats: getFinalStats(player),
-      gold: player.gold
-    }
-  });
-});
-
-router.post("/equip", (req, res) => {
-  const { playerName, itemId } = req.body || {};
+router.post("/equip", requireBodyFields(["playerName", "itemId"]), (req, res) => {
+  const { playerName, itemId } = req.body;
   const player = getPlayerByName(playerName);
 
   if (!player) {
-    return res.status(404).json({
-      ok: false,
-      error: "player_not_found"
-    });
+    return fail(res, "player_not_found", 404);
   }
 
   const result = equipItem(player, itemId);
 
-  if (!result.ok) {
-    return res.status(400).json(result);
+  if (!result?.ok) {
+    return fail(res, result?.error || "equip_failed", 400);
   }
 
-  return res.status(200).json({
-    ok: true,
-    result,
-    stats: getFinalStats(player)
-  });
+  return ok(res, result);
 });
 
-router.post("/unequip", (req, res) => {
-  const { playerName, slot } = req.body || {};
+router.get("/:name", (req, res) => {
+  const equipment = getEquipmentState(req.params.name);
+
+  return ok(res, { equipment });
+});
+
+router.post("/refine", requireBodyFields(["playerName", "slot"]), (req, res) => {
+  const { playerName, slot } = req.body;
   const player = getPlayerByName(playerName);
 
   if (!player) {
-    return res.status(404).json({
-      ok: false,
-      error: "player_not_found"
-    });
-  }
-
-  const result = unequipItem(player, slot);
-
-  if (!result.ok) {
-    return res.status(400).json(result);
-  }
-
-  return res.status(200).json({
-    ok: true,
-    result,
-    stats: getFinalStats(player)
-  });
-});
-
-router.post("/refine", (req, res) => {
-  const { playerName, slot } = req.body || {};
-  const player = getPlayerByName(playerName);
-
-  if (!player) {
-    return res.status(404).json({
-      ok: false,
-      error: "player_not_found"
-    });
+    return fail(res, "player_not_found", 404);
   }
 
   const result = refineItem(player, slot);
 
-  if (!result.ok && !result.failed) {
-    return res.status(400).json(result);
+  if (!result?.ok) {
+    return fail(res, result?.error || "refine_failed", 400);
   }
 
-  return res.status(200).json({
-    ok: true,
-    result,
-    stats: getFinalStats(player),
-    gold: player.gold
-  });
+  return ok(res, result);
 });
 
 module.exports = router;

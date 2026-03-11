@@ -1,55 +1,72 @@
 const express = require("express");
-const {
-  getMarketView,
-  listPlayerItemOnMarket,
-  buyMarketItem
-} = require("../state/game.state");
-
 const router = express.Router();
 
+const { ok, fail } = require("../../utils/api.response");
+const { getPlayerByName } = require("../state/game.state");
+
+let listings = [];
+let nextListingId = 1;
+
 router.get("/", (req, res) => {
-  return res.status(200).json({
-    ok: true,
-    market: getMarketView()
+  return ok(res, {
+    market: {
+      listings
+    }
   });
 });
 
 router.post("/list", (req, res) => {
-  const { playerName, itemId, price } = req.body || {};
 
-  if (!playerName || !itemId || !price) {
-    return res.status(400).json({
-      ok: false,
-      error: "playerName_itemId_price_required"
-    });
+  const playerName = req.body.playerName;
+  const itemId = req.body.itemId;
+  const price = req.body.price;
+
+  const player = getPlayerByName(playerName);
+
+  if (!player) {
+    return fail(res, "player_not_found", 404);
   }
 
-  const listed = listPlayerItemOnMarket(playerName, itemId, price);
+  const listing = {
+    id: nextListingId++,
+    seller: playerName,
+    itemId,
+    price
+  };
 
-  if (!listed.ok) {
-    return res.status(400).json(listed);
-  }
+  listings.push(listing);
 
-  return res.status(200).json(listed);
+  return ok(res, { listing });
 });
 
 router.post("/buy", (req, res) => {
-  const { buyerName, listingId } = req.body || {};
 
-  if (!buyerName || !listingId) {
-    return res.status(400).json({
-      ok: false,
-      error: "buyerName_listingId_required"
-    });
+  const buyerName =
+    req.body.buyerName ||
+    req.body.playerName;
+
+  const listingId = req.body.listingId;
+
+  const player = getPlayerByName(buyerName);
+
+  if (!player) {
+    return fail(res, "player_not_found", 404);
   }
 
-  const bought = buyMarketItem(buyerName, listingId);
+  const index = listings.findIndex(l => l.id === listingId);
 
-  if (!bought.ok) {
-    return res.status(400).json(bought);
+  if (index === -1) {
+    return fail(res, "listing_not_found", 404);
   }
 
-  return res.status(200).json(bought);
+  const listing = listings[index];
+
+  listings.splice(index, 1);
+
+  return ok(res, {
+    bought: true,
+    listing
+  });
 });
 
 module.exports = router;

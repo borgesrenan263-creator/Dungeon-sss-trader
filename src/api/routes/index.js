@@ -1,11 +1,39 @@
 const express = require("express");
 
-const realtimeRoutes = require("./realtime.routes");
 const playerRoutes = require("./player.routes");
+const equipmentRoutes = require("./equipment.routes");
+const inventoryRoutes = require("./inventory.routes");
+const multiplayerRoutes = require("./multiplayer.routes");
+const worldRoutes = require("./world.routes");
+const worldmapRoutes = require("./worldmap.routes");
+const realtimeRoutes = require("./realtime.routes");
+const dashboardRoutes = require("./dashboard.routes");
+const marketRoutes = require("./market.routes");
+const pvpRoutes = require("./pvp.routes");
+const persistenceRoutes = require("./persistence.routes");
+const analyticsRoutes = require("./analytics.routes");
+const telemetryRoutes = require("./telemetry.routes");
+const leaderboardRoutes = require("./leaderboard.routes");
+const galaxyRoutes = require("./galaxy.routes");
 
 const router = express.Router();
 
-router.use("/realtime", realtimeRoutes);
+router.use("/player", playerRoutes);
 router.use("/players", playerRoutes);
+router.use("/equipment", equipmentRoutes);
+router.use("/inventory", inventoryRoutes);
+router.use("/multiplayer", multiplayerRoutes);
+router.use("/world", worldRoutes);
+router.use("/worldmap", worldmapRoutes);
+router.use("/realtime", realtimeRoutes);
+router.use("/dashboard", dashboardRoutes);
+router.use("/market", marketRoutes);
+router.use("/pvp", pvpRoutes);
+router.use("/persistence", persistenceRoutes);
+router.use("/analytics", analyticsRoutes);
+router.use("/telemetry", telemetryRoutes);
+router.use("/leaderboard", leaderboardRoutes);
+router.use("/galaxy", galaxyRoutes);
+router.use("/world/galaxy", galaxyRoutes);
 
 module.exports = router;

@@ -1,51 +1,89 @@
 const express = require("express");
-const {
-  joinGalaxy,
-  attackGalaxy,
-  getGalaxyState
-} = require("../state/game.state");
 
 const router = express.Router();
 
-router.get("/state", (req, res) => {
-  return res.json({
+let galaxyBoss = {
+  name: "Galaxy Boss",
+  hp: 10000,
+  maxHp: 10000,
+  joined: []
+};
+
+function ensureJoined(name) {
+  if (!galaxyBoss.joined.includes(name)) {
+    galaxyBoss.joined.push(name);
+  }
+}
+
+function joinHandler(req, res) {
+  const name = req.body?.name;
+
+  if (!name) {
+    return res.status(400).json({
+      ok: false,
+      error: "name_required"
+    });
+  }
+
+  ensureJoined(name);
+
+  return res.status(200).json({
     ok: true,
-    boss: getGalaxyState()
+    joined: true,
+    boss: galaxyBoss
+  });
+}
+
+function attackHandler(req, res) {
+  const name = req.body?.name;
+  const damage = Number(req.body?.damage || 0);
+
+  if (!name) {
+    return res.status(400).json({
+      ok: false,
+      error: "name_required"
+    });
+  }
+
+  ensureJoined(name);
+
+  galaxyBoss.hp -= damage;
+  if (galaxyBoss.hp < 0) galaxyBoss.hp = 0;
+
+  return res.status(200).json({
+    ok: true,
+    damage,
+    boss: {
+      hp: galaxyBoss.hp,
+      maxHp: galaxyBoss.maxHp
+    }
+  });
+}
+
+router.get("/boss", (req, res) => {
+  return res.status(200).json({
+    ok: true,
+    boss: galaxyBoss
   });
 });
 
-router.post("/join", (req, res) => {
-  const { name } = req.body || {};
+router.post("/boss/spawn", (req, res) => {
+  galaxyBoss = {
+    name: "Galaxy Boss",
+    hp: 10000,
+    maxHp: 10000,
+    joined: []
+  };
 
-  if (!name) {
-    return res.status(400).json({ ok: false, error: "name_required" });
-  }
-
-  const joined = joinGalaxy(name);
-
-  if (!joined.ok) {
-    return res.status(400).json(joined);
-  }
-
-  return res.json(joined);
+  return res.status(200).json({
+    ok: true,
+    boss: galaxyBoss
+  });
 });
 
-router.post("/attack", (req, res) => {
-  const { name, damage } = req.body || {};
-
-  if (!name) {
-    return res.status(400).json({ ok: false, error: "name_required" });
-  }
-
-  const numericDamage = Number(damage || 100);
-
-  const attacked = attackGalaxy(name, numericDamage);
-
-  if (!attacked.ok) {
-    return res.status(400).json(attacked);
-  }
-
-  return res.json(attacked);
-});
+router.post("/join", joinHandler);
+router.post("/attack", attackHandler);
+router.post("/boss/join", joinHandler);
+router.post("/boss/attack", attackHandler);
 
 module.exports = router;

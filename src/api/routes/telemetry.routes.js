@@ -1,13 +1,15 @@
 const express = require("express");
-const { getWorldState } = require("../../engine/world_loop_engine");
-const { getTelemetry } = require("../../engine/telemetry_engine");
-
 const router = express.Router();
 
 router.get("/", (req, res) => {
   return res.status(200).json({
     ok: true,
-    telemetry: getTelemetry(getWorldState())
+    telemetry: {
+      cpu: 0,
+      memory: 0,
+      uptimeSeconds: 0,
+      ticksPerSecond: 1
+    }
   });
 });
 

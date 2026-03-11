@@ -1,39 +1,43 @@
 const express = require("express");
+const {
+  getWorld,
+  getSectors
+} = require("../../engine/world_map_engine");
 
 const router = express.Router();
 
 router.get("/world", (req, res) => {
-  res.json({
+  return res.status(200).json({
     ok: true,
     world: {
-      name: "Dungeon SSS World",
-      sectors: 10,
-      maxLevel: 500
+      tick: getWorld().tick,
+      world_sectors: getSectors(),
+      recent_spawns: getWorld().recentSpawns || []
     }
   });
 });
 
 router.get("/links", (req, res) => {
-  res.json({
+  const sectors = getSectors();
+
+  const links = [];
+  for (let i = 0; i < sectors.length - 1; i += 1) {
+    links.push({
+      from: sectors[i].id,
+      to: sectors[i + 1].id
+    });
+  }
+
+  return res.status(200).json({
     ok: true,
-    links: [
-      { from: 1, to: 2 },
-      { from: 2, to: 3 },
-      { from: 3, to: 4 },
-      { from: 4, to: 5 }
-    ]
+    links
   });
 });
 
 router.get("/events", (req, res) => {
-  res.json({
+  return res.status(200).json({
     ok: true,
-    events: [
-      "Invasão de monstros",
-      "Bonus de XP global",
-      "Tempestade arcana",
-      "Galaxy Boss apareceu"
-    ]
+    events: getWorld().recentSpawns || []
   });
 });
 

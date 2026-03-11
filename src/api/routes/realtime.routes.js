@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.json({
+  return res.status(200).json({
     ok: true,
     realtime: {
       enabled: true,
@@ -14,14 +14,30 @@ router.get("/", (req, res) => {
 });
 
 router.get("/viewer", (req, res) => {
-  res.send(`
-  <html>
-  <body style="background:#111;color:#0f0;font-family:monospace">
-  <h2>Dungeon SSS Trader Realtime</h2>
-  <p>WebSocket: /ws</p>
-  </body>
-  </html>
+  return res.status(200).send(`
+    <html>
+      <head>
+        <title>Dungeon SSS Trader Realtime</title>
+      </head>
+      <body style="background:#111;color:#0f0;font-family:monospace">
+        <h1>Dungeon SSS Trader Realtime</h1>
+        <p>WebSocket viewer online</p>
+      </body>
+    </html>
   `);
+});
+
+router.post("/broadcast-test", (req, res) => {
+  const sent = {
+    type: "manual:test",
+    at: Date.now(),
+    message: "manual realtime test"
+  };
+
+  return res.status(200).json({
+    ok: true,
+    sent
+  });
 });
 
 module.exports = router;

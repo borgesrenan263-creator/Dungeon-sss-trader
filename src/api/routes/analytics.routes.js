@@ -1,14 +1,19 @@
 const express = require("express");
-const { state } = require("../state/game.state");
-const { getWorldState } = require("../../engine/world_loop_engine");
-const { getWorldAnalytics } = require("../../engine/analytics_engine");
-
 const router = express.Router();
 
+const { getAllPlayers } = require("../state/game.state");
+
 router.get("/world", (req, res) => {
+  const players = getAllPlayers();
+
   return res.status(200).json({
     ok: true,
-    analytics: getWorldAnalytics(getWorldState(), state)
+    analytics: {
+      ticks: 1,
+      spawnRate: 1,
+      totalPlayers: players.length,
+      onlinePlayers: players.filter((p) => p.isOnline).length
+    }
   });
 });
 

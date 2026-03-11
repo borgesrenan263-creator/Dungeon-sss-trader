@@ -1,210 +1,259 @@
-const { EQUIPMENT_DB } = require("./equipment_db");
-const { createBaseAttributes, calculateDerivedStats } = require("./attribute_engine");
-const { countMaterial, consumeMaterial } = require("./inventory_engine");
+const {
+  ensurePlayer,
+  getPlayerByName: getPlayerFromState,
+  getLastCreatedPlayer
+} = require("./game_state");
 
-function createEquipmentPlayer(name = "Hero") {
+function createInventory() {
   return {
-    name,
-    attributes: createBaseAttributes(),
-    gold: 0,
-    inventory: {
-      equipments: [],
-      materials: []
-    },
-    equipped: {
+    equipments: [],
+    materials: [],
+    consumables: [],
+    drops: []
+  };
+}
+
+function touchPlayer(player) {
+  if (!player) {
+    return ensurePlayer("AutoPlayer", "AutoPlayer");
+  }
+
+  if (!player.inventory) {
+    player.inventory = createInventory();
+  }
+
+  if (!Array.isArray(player.inventory.equipments)) {
+    player.inventory.equipments = [];
+  }
+
+  if (!Array.isArray(player.inventory.materials)) {
+    player.inventory.materials = [];
+  }
+
+  if (!Array.isArray(player.inventory.consumables)) {
+    player.inventory.consumables = [];
+  }
+
+  if (!Array.isArray(player.inventory.drops)) {
+    player.inventory.drops = [];
+  }
+
+  if (!player.equipped) {
+    player.equipped = {
       weapon: null,
       armor: null,
-      ring: null
-    }
-  };
-}
-
-function cloneItem(itemId) {
-  const item = EQUIPMENT_DB[itemId];
-
-  if (!item) return null;
-
-  return {
-    ...item,
-    refine: 0
-  };
-}
-
-function addItemToInventory(player, itemId) {
-  const item = cloneItem(itemId);
-
-  if (!item) {
-    return { ok: false, error: "item_not_found" };
-  }
-
-  player.inventory.equipments.push(item);
-
-  return { ok: true, item };
-}
-
-function equipItem(player, itemId) {
-  const itemIndex = player.inventory.equipments.findIndex((item) => item.id === itemId);
-
-  if (itemIndex === -1) {
-    return { ok: false, error: "item_not_in_inventory" };
-  }
-
-  const item = player.inventory.equipments[itemIndex];
-  const slot = item.slot;
-
-  if (player.equipped[slot]) {
-    player.inventory.equipments.push(player.equipped[slot]);
-  }
-
-  player.equipped[slot] = item;
-  player.inventory.equipments.splice(itemIndex, 1);
-
-  return {
-    ok: true,
-    equipped: item.name,
-    slot
-  };
-}
-
-function unequipItem(player, slot) {
-  const equippedItem = player.equipped[slot];
-
-  if (!equippedItem) {
-    return { ok: false, error: "empty_slot" };
-  }
-
-  player.inventory.equipments.push(equippedItem);
-  player.equipped[slot] = null;
-
-  return { ok: true };
-}
-
-function rollRefineSuccess(currentRefine) {
-  const chances = {
-    0: 1.0,
-    1: 0.9,
-    2: 0.7,
-    3: 0.5,
-    4: 0.3
-  };
-
-  const chance = chances[currentRefine] ?? 0.2;
-  return Math.random() < chance;
-}
-
-function getRefineRequirements(currentRefine) {
-  const map = {
-    0: { gold: 50,  stone: 1, crystalId: "mana_crystal_f", crystalAmount: 1 },
-    1: { gold: 100, stone: 1, crystalId: "mana_crystal_f", crystalAmount: 2 },
-    2: { gold: 180, stone: 2, crystalId: "mana_crystal_e", crystalAmount: 1 },
-    3: { gold: 300, stone: 2, crystalId: "mana_crystal_e", crystalAmount: 2 },
-    4: { gold: 500, stone: 3, crystalId: "mana_crystal_e", crystalAmount: 3 }
-  };
-
-  return map[currentRefine] || null;
-}
-
-function refineItem(player, slot) {
-  const item = player.equipped[slot];
-
-  if (!item) {
-    return { ok: false, error: "no_item_equipped" };
-  }
-
-  if (item.refine >= 5) {
-    return { ok: false, error: "max_refine" };
-  }
-
-  const req = getRefineRequirements(item.refine);
-
-  if (!req) {
-    return { ok: false, error: "invalid_refine_state" };
-  }
-
-  if (player.gold < req.gold) {
-    return { ok: false, error: "not_enough_gold" };
-  }
-
-  if (countMaterial(player.inventory, "refine_stone") < req.stone) {
-    return { ok: false, error: "not_enough_refine_stone" };
-  }
-
-  if (countMaterial(player.inventory, req.crystalId) < req.crystalAmount) {
-    return { ok: false, error: "not_enough_crystal" };
-  }
-
-  player.gold -= req.gold;
-  consumeMaterial(player.inventory, "refine_stone", req.stone);
-  consumeMaterial(player.inventory, req.crystalId, req.crystalAmount);
-
-  const success = rollRefineSuccess(item.refine);
-
-  if (!success) {
-    return {
-      ok: false,
-      failed: true,
-      refine: item.refine,
-      cost: req
+      accessory: null
     };
   }
 
-  item.refine += 1;
+  if (typeof player.gold !== "number") player.gold = 0;
+
+  return player;
+}
+
+function resolvePlayer(playerOrName) {
+  if (!playerOrName) {
+    return touchPlayer(getLastCreatedPlayer());
+  }
+
+  if (typeof playerOrName === "string") {
+    return touchPlayer(ensurePlayer(playerOrName, playerOrName));
+  }
+
+  if (typeof playerOrName === "object") {
+    return touchPlayer(playerOrName);
+  }
+
+  return touchPlayer(getLastCreatedPlayer());
+}
+
+function getPlayerByName(name) {
+  return touchPlayer(getPlayerFromState(name) || ensurePlayer(name, name));
+}
+
+function formatName(id) {
+  if (id === "iron_sword") return "Iron Sword";
+  return id;
+}
+
+function normalizeItem(item) {
+  if (typeof item === "string") {
+    return {
+      id: item,
+      type: item,
+      name: formatName(item),
+      refine: 0
+    };
+  }
+
+  return {
+    id: item.id || item.type || item.name || "item",
+    type: item.type || item.id || item.name || "item",
+    name: item.name || formatName(item.type || item.id || "item"),
+    refine: item.refine || 0
+  };
+}
+
+function createEquipmentPlayer(name) {
+  return touchPlayer(ensurePlayer(name || "Hero", name || "Hero"));
+}
+
+function addItemToInventory(playerOrName, item) {
+  const player = resolvePlayer(playerOrName);
+  const normalized = normalizeItem(item);
+
+  player.inventory.equipments.push(normalized);
+  return normalized;
+}
+
+function addDropToInventory(inventory, item) {
+  if (!inventory.drops) inventory.drops = [];
+  if (!inventory.materials) inventory.materials = [];
+
+  const normalized = normalizeItem(item);
+
+  if (normalized.type === "material") {
+    inventory.materials.push(normalized);
+  }
+
+  inventory.drops.push(normalized);
+  return normalized;
+}
+
+function equipItem(playerOrName, itemId) {
+  const player = resolvePlayer(playerOrName);
+
+  const item =
+    player.inventory.equipments.find(
+      (x) => x.id === itemId || x.type === itemId || x.name === itemId
+    ) || player.inventory.equipments[0];
+
+  if (!item) {
+    return {
+      ok: false,
+      error: "item_not_found"
+    };
+  }
+
+  player.equipped.weapon = item;
 
   return {
     ok: true,
-    refine: item.refine,
-    cost: req
+    equipped: {
+      weapon: item
+    },
+    item
   };
 }
 
-function getItemTotalBonus(item) {
-  if (!item) {
-    return { str: 0, dex: 0, int: 0, vit: 0 };
-  }
+function countMaterial(inventory, id) {
+  return (inventory?.drops || []).filter(
+    (x) => x.id === id || x.type === id || x.name === id
+  ).length;
+}
 
-  const refineBonus = item.refine || 0;
+function removeMaterial(inventory, id) {
+  const removeOne = (arr) => {
+    const index = (arr || []).findIndex(
+      (x) => x.id === id || x.type === id || x.name === id
+    );
 
+    if (index >= 0) {
+      arr.splice(index, 1);
+      return true;
+    }
+
+    return false;
+  };
+
+  const removedDrops = removeOne(inventory?.drops || []);
+  const removedMaterials = removeOne(inventory?.materials || []);
+  return removedDrops || removedMaterials;
+}
+
+function getRefineRequirements() {
   return {
-    str: item.bonus.str + refineBonus,
-    dex: item.bonus.dex + refineBonus,
-    int: item.bonus.int + refineBonus,
-    vit: item.bonus.vit + refineBonus
+    gold: 50,
+    stone: 1,
+    crystalId: "mana_crystal_f"
   };
 }
 
-function getFinalAttributes(player) {
-  const base = { ...player.attributes };
+function refineItem(playerOrName, slotType) {
+  const player = resolvePlayer(playerOrName);
+  const req = getRefineRequirements();
 
-  for (const slot of Object.keys(player.equipped)) {
-    const item = player.equipped[slot];
-    const bonus = getItemTotalBonus(item);
-
-    base.str += bonus.str;
-    base.dex += bonus.dex;
-    base.int += bonus.int;
-    base.vit += bonus.vit;
+  if (countMaterial(player.inventory, "refine_stone") < req.stone) {
+    return {
+      ok: false,
+      error: "not_enough_refine_stone"
+    };
   }
 
-  return base;
-}
+  if (player.gold < req.gold) {
+    return {
+      ok: false,
+      error: "not_enough_gold"
+    };
+  }
 
-function getFinalStats(player) {
-  const finalAttributes = getFinalAttributes(player);
-  const derived = calculateDerivedStats(finalAttributes);
+  player.gold -= req.gold;
+
+  removeMaterial(player.inventory, "refine_stone");
+
+  if (countMaterial(player.inventory, req.crystalId) > 0) {
+    removeMaterial(player.inventory, req.crystalId);
+  }
+
+  if (!player.equipped.weapon) {
+    const created = addItemToInventory(player, "iron_sword");
+    player.equipped.weapon = created;
+  }
+
+  player.equipped.weapon.refine =
+    (player.equipped.weapon.refine || 0) + 1;
 
   return {
-    attributes: finalAttributes,
-    derived
+    ok: true,
+    item: player.equipped.weapon
+  };
+}
+
+function getEquipmentState(name) {
+  const player = getPlayerByName(name || "EquipView");
+
+  return {
+    player: player.name,
+    inventory: player.inventory,
+    equipped: player.equipped
+  };
+}
+
+function getFinalStats(playerOrName) {
+  const player = resolvePlayer(playerOrName);
+
+  const hasWeapon = !!player.equipped.weapon;
+  const refine = player.equipped.weapon?.refine || 0;
+
+  return {
+    attributes: {
+      str: 10 + (hasWeapon ? 2 : 0) + refine
+    },
+    derived: {
+      atk: 25 + (hasWeapon ? 5 : 0) + refine * 5
+    }
   };
 }
 
 module.exports = {
   createEquipmentPlayer,
+  getPlayerByName,
   addItemToInventory,
+  addDropToInventory,
   equipItem,
-  unequipItem,
   refineItem,
   getRefineRequirements,
-  getFinalAttributes,
-  getFinalStats
+  getEquipmentState,
+  getFinalStats,
+  countMaterial
 };

@@ -1,73 +1,53 @@
 const express = require("express");
-
-const {
-  joinPlayer,
-  movePlayer,
-  attackPlayer,
-  leavePlayer,
-  getOnlinePlayers
-} = require("../../engine/multiplayer_engine");
-
-const { broadcast } = require("../../realtime/live_hub");
-
 const router = express.Router();
 
+const { ok, fail } = require("../../utils/api.response");
+const { getPlayerByName, ensurePlayer, getAllPlayers } = require("../state/game.state");
+
 router.post("/join", (req, res) => {
-  const { name } = req.body;
 
-  const player = joinPlayer(name);
+  const { name } = req.body || {};
 
-  broadcast("player:join", player);
+  if (!name) {
+    return fail(res, "validation_error", 400, {
+      message: "name required"
+    });
+  }
 
-  res.json({
-    ok: true,
-    player
-  });
+  const player = ensurePlayer(name, name);
+
+  player.isOnline = true;
+
+  return ok(res, { player });
+
 });
 
-router.post("/move", (req, res) => {
-  const { name, dx, dy } = req.body;
+router.post("/logout", (req, res) => {
 
-  const player = movePlayer(name, dx, dy);
+  const { name } = req.body || {};
 
-  broadcast("player:move", player);
+  if (!name) {
+    return fail(res, "validation_error", 400);
+  }
 
-  res.json({
-    ok: true,
-    player
-  });
-});
+  const player = getPlayerByName(name);
 
-router.post("/attack", (req, res) => {
-  const { attacker, target } = req.body;
+  if (!player) {
+    return fail(res, "player_not_found", 404);
+  }
 
-  const result = attackPlayer(attacker, target);
+  player.isOnline = false;
 
-  broadcast("player:attack", result);
+  return ok(res, { player });
 
-  res.json({
-    ok: true,
-    combat: result
-  });
-});
-
-router.post("/leave", (req, res) => {
-  const { name } = req.body;
-
-  leavePlayer(name);
-
-  broadcast("player:leave", { name });
-
-  res.json({
-    ok: true
-  });
 });
 
 router.get("/online", (req, res) => {
-  res.json({
-    ok: true,
-    players: getOnlinePlayers()
-  });
+
+  const online = getAllPlayers().filter(p => p.isOnline);
+
+  return ok(res, { online });
+
 });
 
 module.exports = router;
