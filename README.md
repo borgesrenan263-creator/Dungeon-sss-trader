@@ -136,6 +136,73 @@ modular architecture
 server-side game simulation
 economy systems
 automated testing
+
+## Key Features
+
+✔ MMORPG world simulation engine  
+✔ Dynamic mob spawning system  
+✔ Equipment and refine mechanics (+1 → +5)  
+✔ Player driven market economy  
+✔ Global boss events (Galaxy Boss)  
+✔ REST API controlling the game state  
+✔ 103 automated tests (Jest + Supertest)  
+✔ Modular backend architecture  
+
+Built entirely using:
+
+Node.js  
+Express  
+Jest  
+
+Development environment:
+
+Termux (Android mobile development)
+
+## Project Structure
+
+src
+ ├ engine
+ │   ├ combat_engine
+ │   ├ farm_engine
+ │   ├ equipment_engine
+ │   ├ refine_engine
+ │   ├ loot_system
+ │   ├ reward_system
+ │   ├ potion_engine
+ │   ├ sector_engine
+ │   ├ world_loop_engine
+ │   ├ galaxy_boss_engine
+ │   └ market_engine
+ │
+ ├ api
+ │   ├ routes
+ │   └ state
+ │
+tests
+ ├ combat
+ ├ world
+ ├ equipment
+ ├ market
+ └ api
+
+## Demo
+
+Example server simulation output:
+
+- World Tick simulation
+- Mob spawning events
+- Economy market events
+- Global boss spawn
+
+Example:
+
+World Tick: 1920  
+Mob spawned: Goblin  
+Economy Tick: BUY mana_crystal_f  
+Galaxy Boss spawned  
+
+This demonstrates the server simulation loop that drives the game world.
+
 Author
 Renan Borges
 Junior Backend Developer
