@@ -1,124 +1,186 @@
 # Dungeon SSS Trader
 
-MMORPG backend simulation engine built with Node.js and Express.
+MMORPG backend simulation platform built with Node.js and Express.
 
-This project simulates the backend architecture of an online RPG world including real-time events, multiplayer interactions, analytics, telemetry, persistence, and a live dashboard.
+This project simulates the backend infrastructure of a persistent online RPG world including:
 
-The system was developed entirely from a **mobile development environment using Termux**.
-
----
-
-# Overview
-
-Dungeon SSS Trader is a backend platform that simulates the core systems of a multiplayer RPG server.
-
-The backend includes:
-
-- World simulation engine
-- Dynamic economy system
-- Loot and reward engines
-- PvP combat system
-- Inventory and equipment systems
-- Marketplace trading
-- Multiplayer realtime engine
-- WebSocket event streaming
-- Analytics and telemetry
+- realtime world simulation
+- dynamic economy system
+- loot and reward engines
+- PvP combat
+- multiplayer architecture
+- WebSocket realtime events
+- analytics and telemetry
 - SQLite persistence
-- Live monitoring dashboard
+- live dashboard monitoring
+
+The entire system was developed from a **mobile development environment using Termux**.
 
 ---
 
-# Architecture
+# System Vision
 
-The project follows a modular backend architecture.
+Dungeon SSS Trader simulates a live multiplayer RPG server where a persistent world evolves through automated engines.
+
+The backend continuously simulates:
+
+- world ticks
+- monster spawning
+- item economy
+- boss events
+- player interactions
+- multiplayer combat
+- analytics metrics
+- telemetry monitoring
+
+The goal of the project is to demonstrate backend architecture used in:
+
+- multiplayer games
+- realtime systems
+- simulation engines
+- distributed event systems
+- API based architectures
+
+---
+
+# High Level Architecture
 
 Dungeon SSS Trader
 
 API Layer
-- player
-- inventory
-- market
-- pvp
-- multiplayer
-- persistence
+- Player API
+- Inventory API
+- Market API
+- PvP API
+- Multiplayer API
+- Persistence API
 
 Game Engines
-- world loop engine
-- economy engine
-- loot system
-- reward system
+- World Engine
+- Spawn Engine
+- Loot Engine
+- Reward Engine
+- Economy Engine
+- Combat Engine
 
-Realtime
-- websocket hub
-- event broadcast
-
-Multiplayer
-- join player
-- move player
-- attack player
-- leave player
+Realtime Systems
+- WebSocket Hub
+- Event Broadcast System
+- Multiplayer Event Streaming
 
 Observability
-- analytics engine
-- telemetry engine
+- Analytics Engine
+- Telemetry Engine
 
-Database
-- SQLite persistence layer
+Persistence
+- SQLite Storage Layer
 
 Interface
-- live monitoring dashboard
+- Live Monitoring Dashboard
 
 ---
 
-# World Simulation Engine
+# Engine Architecture
 
-The world engine continuously simulates the game environment.
+The system runs several autonomous engines responsible for simulating the world.
 
-It generates:
+World Engine
 
-- world ticks
-- mob spawns
-- global events
-- galaxy boss spawns
-- economy updates
+Responsible for generating world ticks and controlling global simulation.
 
-Example simulated world state:
+Responsibilities:
+
+- generate world ticks
+- trigger spawn cycles
+- schedule events
+- control boss spawns
+- update economy
+
+Example world state:
 
 Tick: 9  
 Mobs Spawned: 6  
 Global Events: 2  
 
-The world engine runs automatically once the server starts.
+---
+
+Spawn Engine
+
+Controls monster spawning across the world.
+
+Features:
+
+- dynamic spawn rate
+- difficulty scaling
+- zone based spawn logic
 
 ---
 
-# Economy Engine
+Loot Engine
 
-The economy system simulates supply and demand across the game world.
+Determines items dropped by monsters.
 
-Items include:
+Features:
+
+- rarity system
+- item pools
+- weighted drops
+
+Example drop table:
 
 iron_sword  
 leather_armor  
-apprentice_ring  
-refine_stone  
 mana_crystal  
-mana_crystal_f  
+refine_stone  
 
-Prices fluctuate dynamically based on simulated trades.
+---
 
-Example economy output:
+Reward Engine
+
+Calculates rewards for defeating monsters.
+
+Rewards include:
+
+- experience
+- gold
+- item drops
+
+---
+
+Combat Engine
+
+Handles combat mechanics including:
+
+- player vs monster
+- player vs player
+- critical hits
+- damage calculation
+
+---
+
+Economy Engine
+
+Simulates the global item economy.
+
+Features:
+
+- supply and demand simulation
+- market pricing
+- trading system
+
+Example economy state:
 
 iron_sword: 100  
 leather_armor: 80  
 apprentice_ring: 77  
 refine_stone: 120  
+mana_crystal: 164  
 
 ---
 
-# Multiplayer Engine
+# Multiplayer Architecture
 
-Players can interact with the world through API endpoints.
+The multiplayer system allows players to interact in realtime.
 
 Supported actions:
 
@@ -127,9 +189,9 @@ move player
 attack player  
 leave world  
 
-Multiplayer events are broadcast through WebSocket.
+Events are broadcast through the realtime event system.
 
-Example realtime events:
+Example multiplayer events:
 
 player:join  
 player:move  
@@ -138,52 +200,67 @@ player:leave
 
 ---
 
-# Realtime Event Streaming
+# Realtime Event System
 
-The system uses WebSocket to stream live game events.
+The system includes a WebSocket hub that broadcasts live events.
 
 Clients receive updates for:
 
-world updates  
-mob spawns  
-economy ticks  
-boss events  
-multiplayer activity  
+- world ticks
+- mob spawns
+- economy changes
+- boss events
+- multiplayer activity
 
-Example message structure:
+Example event message:
 
-type: world:update  
+type: world:update
+
 payload:
 - ticks
 - mobsSpawned
 
 ---
 
+# Galaxy Boss System
+
+The world includes a global boss entity.
+
+Example boss state:
+
+Name: Galaxy Sovereign  
+HP: 5000 / 5000  
+Alive: YES  
+
+Boss encounters generate global events visible to all players.
+
+---
+
 # Analytics System
 
-The analytics engine tracks simulation metrics such as:
+The analytics engine measures system behavior and simulation metrics.
+
+Tracked metrics include:
 
 spawn rate  
 event rate  
-market activity  
+market listings  
 online players  
 
-Example metrics:
+Example analytics:
 
 Spawn Rate: 0.58  
 Event Rate: 0.17  
 Market Listings: 0  
 Online Players: 0  
 
-These metrics help observe system behavior.
-
 ---
 
 # Telemetry System
 
-Telemetry monitors the health and behavior of the server.
+Telemetry tracks the health of the server.
 
-Tracked metrics include:
+Metrics include:
 
 uptime  
 ticks per second  
@@ -205,9 +282,9 @@ Mob Spawns: 7
 
 # Persistence Layer
 
-Game data is stored using SQLite.
+The project uses SQLite for data persistence.
 
-Persisted data includes:
+Persisted entities include:
 
 players  
 world state  
@@ -217,15 +294,15 @@ Persistence endpoints:
 
 POST /persistence/init  
 POST /persistence/save  
-GET  /persistence/load  
+GET /persistence/load  
 
-This allows the simulated world state to be stored and restored.
+This allows the simulated world state to be restored.
 
 ---
 
 # API Overview
 
-Main API routes:
+Main routes:
 
 /player  
 /inventory  
@@ -237,9 +314,9 @@ Main API routes:
 /telemetry  
 /dashboard  
 
-Example player creation request:
+Example player creation:
 
-POST /player/create  
+POST /player/create
 
 Body:
 
@@ -247,92 +324,118 @@ name: HeroAPI
 
 ---
 
-# Live Dashboard
+# Dashboard
 
-The project includes a live dashboard that displays:
+A live dashboard provides visibility into the system.
+
+Displays:
 
 world state  
-galaxy boss  
+galaxy boss status  
 economy prices  
 leaderboards  
 analytics metrics  
 telemetry metrics  
 
-The dashboard automatically refreshes every few seconds.
+The dashboard automatically refreshes periodically.
+
+Access:
+
+http://127.0.0.1:3000/dashboard
 
 ---
 
-# Automated Testing
+# Testing
 
-The project includes a full automated test suite.
+The project includes a comprehensive automated test suite.
 
 Test Suites: 58  
 Tests: 120  
-Status: All passing  
+All tests passing.
 
-Testing stack:
+Testing tools:
 
 Jest  
 Supertest  
 
 Tests validate:
 
-world engine  
+world simulation  
 loot system  
 reward system  
 economy engine  
 inventory system  
 player state  
-multiplayer engine  
+multiplayer actions  
 persistence layer  
-API routes  
+API endpoints  
 
 ---
 
-# Tech Stack
+# Technology Stack
 
-Backend technologies used in this project:
+Backend:
 
 Node.js  
 Express  
-WebSocket (ws)  
-SQLite  
+
+Realtime:
+
+WebSocket (ws)
+
+Database:
+
+SQLite
+
+Testing:
+
 Jest  
-Supertest  
+Supertest
+
+Development:
+
+Termux  
+Git  
+Vite (dashboard)
 
 ---
 
 # Development Environment
 
-This entire project was developed using a **mobile coding environment**.
+This project was developed entirely from a mobile development environment using Termux.
 
 Tools used:
 
 Termux  
 Node.js  
 Git  
-Vite (dashboard development)
+Vite
+
+This demonstrates that complex backend systems can be built even in constrained environments.
 
 ---
 
-# How To Run
+# Running The Project
 
 Clone repository:
 
-git clone <repository-url>  
-cd dungeon-sss-trader  
+git clone <repository-url>
+
+Enter project folder:
+
+cd dungeon-sss-trader
 
 Install dependencies:
 
-npm install  
+npm install
 
 Start server:
 
-node src/server.js  
+node src/server.js
 
-Run tests:
+Run automated tests:
 
-npm test  
+npm test
 
 Open dashboard:
 
@@ -342,13 +445,13 @@ http://127.0.0.1:3000/dashboard
 
 # Project Goal
 
-The goal of this project is to demonstrate backend engineering skills in:
+The objective of this project is to demonstrate backend engineering skills including:
 
 real-time systems  
 simulation engines  
-game economy systems  
-multiplayer architecture  
-observability and telemetry  
+multiplayer architectures  
+event driven systems  
+observability and monitoring  
 automated testing  
 
 ---
@@ -364,4 +467,4 @@ API architecture
 Realtime systems  
 Game simulation engines  
 
-Developed as a portfolio project to demonstrate backend engineering skills.
+This project was created as a portfolio demonstration of backend engineering capabilities.
