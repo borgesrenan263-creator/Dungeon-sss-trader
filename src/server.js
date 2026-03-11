@@ -1,24 +1,14 @@
 const express = require("express");
-
+const routes = require("./api/routes");
 const { startEngine } = require("./engine/start_engine");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-
-app.get("/", (req,res)=>{
-  res.json({
-    server:"Dungeon Isekai Server",
-    status:"online"
-  });
-});
-
-const PORT = 3000;
+app.use("/", routes);
 
 app.listen(PORT, () => {
-
   console.log("🌐 Server rodando na porta", PORT);
-
   startEngine();
-
 });

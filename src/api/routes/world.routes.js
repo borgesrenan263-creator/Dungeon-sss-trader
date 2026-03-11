@@ -1,110 +1,105 @@
 const express = require("express");
+const { getApiWorldState } = require("../state/game.state");
+
 const router = express.Router();
 
-const {
-  getWorldOverview,
-  getSectorById,
-} = require("../repositories/world.repository");
+/*
+WORLD ROOT
+*/
 
-const cache = require("../../utils/cache");
+router.get("/", (req, res) => {
+  const sectors = [];
 
-router.get("/", async (req, res) => {
-  try {
-    const cacheKey = "world:overview";
-    const cached = cache.get(cacheKey);
-
-    if (cached) {
-      return res.json({
-        ok: true,
-        cached: true,
-        world: cached
-      });
-    }
-
-    const world = await getWorldOverview();
-
-    cache.set(cacheKey, world, 20);
-
-    return res.json({
-      ok: true,
-      cached: false,
-      world
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
+  for (let i = 1; i <= 10; i++) {
+    sectors.push({
+      id: i,
+      levelMin: (i - 1) * 50 + 1,
+      levelMax: i * 50,
+      mobs: ["Slime", "Wolf", "Goblin", "Orc"]
     });
   }
+
+  return res.status(200).json({
+    ok: true,
+    world: {
+      name: "Dungeon SSS World",
+      max_level: 500,
+      world_sectors: sectors
+    }
+  });
 });
 
-router.get("/sectors", async (req, res) => {
-  try {
-    const cacheKey = "world:sectors";
-    const cached = cache.get(cacheKey);
+/*
+WORLD STATE
+*/
 
-    if (cached) {
-      return res.json({
-        ok: true,
-        cached: true,
-        total: cached.total_sectors,
-        sectors: cached.world_sectors
-      });
-    }
-
-    const world = await getWorldOverview();
-
-    cache.set(cacheKey, world, 20);
-
-    return res.json({
-      ok: true,
-      cached: false,
-      total: world.total_sectors,
-      sectors: world.world_sectors
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
-    });
-  }
+router.get("/state", (req, res) => {
+  return res.json({
+    ok: true,
+    world: getApiWorldState()
+  });
 });
 
-router.get("/sector/:id", async (req, res) => {
-  try {
-    const cacheKey = `world:sector:${req.params.id}`;
-    const cached = cache.get(cacheKey);
+/*
+WORLD ECONOMY
+*/
 
-    if (cached) {
-      return res.json({
-        ok: true,
-        cached: true,
-        sector: cached
-      });
-    }
+router.get("/economy", (req, res) => {
+  const world = getApiWorldState();
 
-    const sector = await getSectorById(req.params.id);
+  return res.json({
+    ok: true,
+    economy: world.economy
+  });
+});
 
-    if (!sector) {
-      return res.status(404).json({
-        ok: false,
-        error: "sector_not_found"
-      });
-    }
+/*
+WORLD SECTORS
+*/
 
-    cache.set(cacheKey, sector, 20);
+router.get("/sectors", (req, res) => {
+  const sectors = [];
 
-    return res.json({
-      ok: true,
-      cached: false,
-      sector
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
+  for (let i = 1; i <= 10; i++) {
+    sectors.push({
+      id: i,
+      levelMin: (i - 1) * 50 + 1,
+      levelMax: i * 50,
+      mobs: ["Slime", "Wolf", "Goblin"]
     });
   }
+
+  return res.status(200).json({
+    ok: true,
+    sectors
+  });
+});
+
+/*
+SINGLE SECTOR
+*/
+
+router.get("/sector/:id", (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!id || id < 1) {
+    return res.status(400).json({
+      ok: false,
+      error: "invalid_sector"
+    });
+  }
+
+  const sector = {
+    id,
+    levelMin: (id - 1) * 50 + 1,
+    levelMax: id * 50,
+    mobs: ["Slime", "Wolf", "Goblin", "Orc"]
+  };
+
+  return res.status(200).json({
+    ok: true,
+    sector
+  });
 });
 
 module.exports = router;

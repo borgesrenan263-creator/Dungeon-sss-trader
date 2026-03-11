@@ -1,86 +1,108 @@
 const express = require("express");
-const router = express.Router();
-
 const {
-  getPlayerEquipment,
+  getPlayerByName
+} = require("../state/game.state");
+const {
   equipItem,
   unequipItem,
-  getEquipmentStats
-} = require("../../repositories/equipment.repository");
+  refineItem,
+  getFinalStats
+} = require("../../engine/equipment_engine");
 
-router.get("/player/:playerId", async (req, res) => {
-  try {
-    const equipment = await getPlayerEquipment(req.params.playerId);
+const router = express.Router();
 
-    res.json({
-      ok: true,
-      total: equipment.length,
-      equipment
-    });
-  } catch (error) {
-    res.status(400).json({
+router.get("/:name", (req, res) => {
+  const player = getPlayerByName(req.params.name);
+
+  if (!player) {
+    return res.status(404).json({
       ok: false,
-      error: error.message
+      error: "player_not_found"
     });
   }
+
+  return res.status(200).json({
+    ok: true,
+    equipment: {
+      equipped: player.equipped,
+      inventory: player.inventory,
+      stats: getFinalStats(player),
+      gold: player.gold
+    }
+  });
 });
 
-router.post("/equip", async (req, res) => {
-  try {
-    const { playerId, inventoryId } = req.body;
+router.post("/equip", (req, res) => {
+  const { playerName, itemId } = req.body || {};
+  const player = getPlayerByName(playerName);
 
-    const result = await equipItem({
-      playerId,
-      inventoryId
-    });
-
-    res.json({
-      ok: true,
-      result
-    });
-  } catch (error) {
-    res.status(400).json({
+  if (!player) {
+    return res.status(404).json({
       ok: false,
-      error: error.message
+      error: "player_not_found"
     });
   }
+
+  const result = equipItem(player, itemId);
+
+  if (!result.ok) {
+    return res.status(400).json(result);
+  }
+
+  return res.status(200).json({
+    ok: true,
+    result,
+    stats: getFinalStats(player)
+  });
 });
 
-router.post("/unequip", async (req, res) => {
-  try {
-    const { playerId, slotKey } = req.body;
+router.post("/unequip", (req, res) => {
+  const { playerName, slot } = req.body || {};
+  const player = getPlayerByName(playerName);
 
-    const result = await unequipItem({
-      playerId,
-      slotKey
-    });
-
-    res.json({
-      ok: true,
-      result
-    });
-  } catch (error) {
-    res.status(400).json({
+  if (!player) {
+    return res.status(404).json({
       ok: false,
-      error: error.message
+      error: "player_not_found"
     });
   }
+
+  const result = unequipItem(player, slot);
+
+  if (!result.ok) {
+    return res.status(400).json(result);
+  }
+
+  return res.status(200).json({
+    ok: true,
+    result,
+    stats: getFinalStats(player)
+  });
 });
 
-router.get("/stats/:playerId", async (req, res) => {
-  try {
-    const result = await getEquipmentStats(req.params.playerId);
+router.post("/refine", (req, res) => {
+  const { playerName, slot } = req.body || {};
+  const player = getPlayerByName(playerName);
 
-    res.json({
-      ok: true,
-      result
-    });
-  } catch (error) {
-    res.status(400).json({
+  if (!player) {
+    return res.status(404).json({
       ok: false,
-      error: error.message
+      error: "player_not_found"
     });
   }
+
+  const result = refineItem(player, slot);
+
+  if (!result.ok && !result.failed) {
+    return res.status(400).json(result);
+  }
+
+  return res.status(200).json({
+    ok: true,
+    result,
+    stats: getFinalStats(player),
+    gold: player.gold
+  });
 });
 
 module.exports = router;

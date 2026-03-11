@@ -1,129 +1,51 @@
 const express = require("express");
+const {
+  joinGalaxy,
+  attackGalaxy,
+  getGalaxyState
+} = require("../state/game.state");
+
 const router = express.Router();
 
-const {
-  spawnBoss,
-  getActiveBoss,
-  joinBoss,
-  getBossParticipants,
-  damageBossLayer,
-  getBossRewards,
-  getAscensionStatus
-} = require("../../repositories/boss.repository");
-
-router.post("/spawn", async (req, res) => {
-  try {
-    const result = await spawnBoss();
-    return res.json({
-      ok: true,
-      result
-    });
-  } catch (error) {
-    return res.status(400).json({
-      ok: false,
-      error: error.message
-    });
-  }
+router.get("/state", (req, res) => {
+  return res.json({
+    ok: true,
+    boss: getGalaxyState()
+  });
 });
 
-router.get("/active", async (req, res) => {
-  try {
-    const boss = await getActiveBoss();
+router.post("/join", (req, res) => {
+  const { name } = req.body || {};
 
-    return res.json({
-      ok: true,
-      boss
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
-    });
+  if (!name) {
+    return res.status(400).json({ ok: false, error: "name_required" });
   }
+
+  const joined = joinGalaxy(name);
+
+  if (!joined.ok) {
+    return res.status(400).json(joined);
+  }
+
+  return res.json(joined);
 });
 
-router.post("/join", async (req, res) => {
-  try {
-    const { playerId } = req.body;
+router.post("/attack", (req, res) => {
+  const { name, damage } = req.body || {};
 
-    const result = await joinBoss(playerId);
-
-    return res.json({
-      ok: true,
-      result
-    });
-  } catch (error) {
-    return res.status(400).json({
-      ok: false,
-      error: error.message
-    });
+  if (!name) {
+    return res.status(400).json({ ok: false, error: "name_required" });
   }
-});
 
-router.get("/participants", async (req, res) => {
-  try {
-    const participants = await getBossParticipants();
+  const numericDamage = Number(damage || 100);
 
-    return res.json({
-      ok: true,
-      total: participants.length,
-      participants
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
-    });
+  const attacked = attackGalaxy(name, numericDamage);
+
+  if (!attacked.ok) {
+    return res.status(400).json(attacked);
   }
-});
 
-router.post("/attack", async (req, res) => {
-  try {
-    const result = await damageBossLayer();
-
-    return res.json({
-      ok: true,
-      result
-    });
-  } catch (error) {
-    return res.status(400).json({
-      ok: false,
-      error: error.message
-    });
-  }
-});
-
-router.get("/rewards", async (req, res) => {
-  try {
-    const rewards = await getBossRewards();
-
-    return res.json({
-      ok: true,
-      total: rewards.length,
-      rewards
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
-    });
-  }
-});
-
-router.get("/ascension/:playerId", async (req, res) => {
-  try {
-    const ascension = await getAscensionStatus(req.params.playerId);
-
-    return res.json({
-      ok: true,
-      ascension
-    });
-  } catch (error) {
-    return res.status(400).json({
-      ok: false,
-      error: error.message
-    });
-  }
+  return res.json(attacked);
 });
 
 module.exports = router;
