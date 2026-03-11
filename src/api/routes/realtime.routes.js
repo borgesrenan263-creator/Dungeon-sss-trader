@@ -1,37 +1,27 @@
 const express = require("express");
-const { getRealtimeStats, broadcast } = require("../../realtime/live_hub");
-const { renderRealtimePage } = require("../../realtime/client_page");
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  return res.status(200).json({
+  res.json({
     ok: true,
-    realtime: getRealtimeStats()
+    realtime: {
+      enabled: true,
+      clients: 0,
+      path: "/ws"
+    }
   });
 });
 
 router.get("/viewer", (req, res) => {
-  const protocol = req.headers.host && req.headers.host.includes("127.0.0.1")
-    ? "ws"
-    : "wss";
-
-  const wsUrl = protocol + "://" + req.headers.host + "/ws";
-  return res.status(200).send(renderRealtimePage(wsUrl));
-});
-
-router.post("/broadcast-test", (req, res) => {
-  const payload = {
-    message: "manual realtime test",
-    at: Date.now()
-  };
-
-  broadcast("manual:test", payload);
-
-  return res.status(200).json({
-    ok: true,
-    sent: payload
-  });
+  res.send(`
+  <html>
+  <body style="background:#111;color:#0f0;font-family:monospace">
+  <h2>Dungeon SSS Trader Realtime</h2>
+  <p>WebSocket: /ws</p>
+  </body>
+  </html>
+  `);
 });
 
 module.exports = router;
