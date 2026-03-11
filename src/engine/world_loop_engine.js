@@ -1,10 +1,12 @@
 const { createGalaxyBoss } = require("./galaxy_boss_engine");
+const { createEconomy, runEconomyTick } = require("./ai_economy_engine");
 
 let worldState = {
   ticks: 0,
   mobsSpawned: 0,
   globalEvents: [],
-  activeGalaxyBoss: null
+  activeGalaxyBoss: null,
+  economy: createEconomy()
 };
 
 function spawnWorldMob() {
@@ -44,6 +46,20 @@ function maybeSpawnGalaxyBoss() {
   return null;
 }
 
+function processEconomyTick() {
+  const trade = runEconomyTick(worldState.economy);
+
+  console.log(
+    "🏪 Economy Tick:",
+    trade.type.toUpperCase(),
+    trade.itemId,
+    "| preço:",
+    trade.price
+  );
+
+  return trade;
+}
+
 function startWorldLoopEngine() {
   console.log("🌐 World Loop Engine iniciado");
 
@@ -60,6 +76,10 @@ function startWorldLoopEngine() {
       triggerGlobalEvent();
     }
 
+    if (worldState.ticks % 7 === 0) {
+      processEconomyTick();
+    }
+
     maybeSpawnGalaxyBoss();
   }, 1000);
 }
@@ -73,5 +93,6 @@ module.exports = {
   getWorldState,
   spawnWorldMob,
   triggerGlobalEvent,
-  maybeSpawnGalaxyBoss
+  maybeSpawnGalaxyBoss,
+  processEconomyTick
 };

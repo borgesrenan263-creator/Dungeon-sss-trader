@@ -2,7 +2,8 @@ const {
   getWorldState,
   spawnWorldMob,
   triggerGlobalEvent,
-  maybeSpawnGalaxyBoss
+  maybeSpawnGalaxyBoss,
+  processEconomyTick
 } = require("../src/engine/world_loop_engine");
 
 describe("World Loop Engine", () => {
@@ -29,5 +30,12 @@ describe("World Loop Engine", () => {
 
     expect(boss).toBeTruthy();
     expect(boss.name).toBe("Galaxy Sovereign");
+  });
+
+  test("should process economy tick", () => {
+    const trade = processEconomyTick();
+
+    expect(trade.itemId).toBeTruthy();
+    expect(trade.price).toBeGreaterThan(0);
   });
 });
