@@ -1,88 +1,159 @@
 # Dungeon SSS Trader
 
-Backend architecture for an experimental MMORPG economy and world simulation.
+Backend architecture for a simulated MMORPG economy and world engine.
 
-This project simulates the core server systems of an online RPG including:
+This project implements the core server-side systems of an online RPG including combat, loot, equipment, refine mechanics, world simulation and a player-driven market.
 
-• Combat engine  
-• Farm engine with dynamic spawn  
-• Equipment and refine system (+1 to +5)  
-• Player inventory  
-• World sectors and movement  
-• Global events  
-• Galaxy boss system  
-• Player driven market economy  
-• Automated game loop  
-
-The server exposes a REST API that controls the entire game world.
+The goal of the project is to study **backend architecture, modular game engines and automated testing**.
 
 ---
 
-## Architecture
+# Architecture Overview
 
 Player
 ↓
-API (Express)
+REST API (Express)
 ↓
 Game Engine
-- Combat Engine
-- Loot System
-- Farm Engine
-- Equipment Engine
-- Market Engine
-- Galaxy Boss Engine
-- World Loop Engine
+│
+├ Combat Engine
+├ Loot System
+├ Farm Engine
+├ Equipment Engine
+├ Refine System
+├ Market Economy
+├ Galaxy Boss System
+└ World Simulation Loop
 ↓
 Game State
 
 ---
 
-## Technologies
+# Game Systems Implemented
+
+World Simulation
+
+• Continuous world tick  
+• Dynamic mob spawn  
+• Global events  
+• Sector based map
+
+Combat System
+
+• Auto combat loop  
+• Damage calculation  
+• Potion auto-heal  
+• Enemy spawn logic
+
+Equipment System
+
+• Weapons and armor  
+• Equip / unequip mechanics  
+• Player stat calculation
+
+Refine System
+
+• Equipment upgrade system (+1 → +5)
+• Success / failure mechanic
+• Resource consumption
+
+Market Economy
+
+• Player driven item market
+• Buy / sell mechanics
+• Market listing system
+• Economy tick events
+
+Boss System
+
+• Global Galaxy Boss
+• Player join system
+• Combat phase
+• Reward distribution
+
+---
+
+# API Structure
+
+Main API routes:
+
+/player
+/world
+/worldmap
+/galaxy
+/equipment
+/market
+
+Example endpoints
+
+GET /health
+
+GET /world
+
+POST /player/create
+
+GET /market
+
+POST /equipment/equip
+
+POST /equipment/refine
+
+---
+
+# Test Coverage
+
+The project contains automated tests validating the core engines and API.
+Test Suites: 50 passed Tests: 103 passed
+Tests include:
+
+• player systems  
+• combat mechanics  
+• loot generation  
+• equipment engine  
+• refine system  
+• market economy  
+• world routes  
+
+Testing stack:
+
+Jest  
+Supertest
+
+---
+
+# Running the Project
+
+Install dependencies
+Run server
+Run automated tests
+---
+
+# Development Environment
+
+This entire project was developed on:
+
+Termux (Android mobile environment)
+
+Using:
 
 Node.js  
 Express  
 Jest  
-Supertest  
-
-Development environment:
-
-Termux (Android mobile development)
 
 ---
 
-## Test Coverage
-The project contains automated tests validating:
+# Project Goal
 
-- player systems
-- equipment systems
-- combat mechanics
-- loot generation
-- reward engine
-- market system
-- world routes
+This project was built as a backend engineering exercise focusing on:
+
+• modular architecture  
+• server-side game simulation  
+• economy systems  
+• automated testing  
 
 ---
 
-## Running the project
-
-Install dependencies:
-Test Suites: 50 passed Tests: 103 passed
-Start the server:
-Run automated tests:
----
-
-## Project Goal
-
-This project was built as a backend engineering study focusing on:
-
-game architecture  
-server-side simulation  
-modular engine design  
-automated testing
-
----
-
-## Author
+# Author
 
 Renan Borges  
 Junior Backend Developer
