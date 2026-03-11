@@ -1,49 +1,54 @@
-const express = require("express");
-const http = require("http");
+const express = require("express")
+const http = require("http")
 
-const routes = require("./api/routes");
-const { startWorldLoop, getWorldState } = require("./engine/world_loop_engine");
-const { attachRealtime, broadcast } = require("./realtime/live_hub");
-const { getApiWorldState } = require("./api/state/game.state");
-const { getTelemetry } = require("./engine/telemetry_engine");
+const app = express()
 
-const app = express();
-const PORT = 3000;
+app.use(express.json())
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+/*
+---------------------------------
+BASIC HEALTH ROUTE (Render check)
+---------------------------------
+*/
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "Dungeon SSS Trader",
+    uptime: process.uptime()
+  })
+})
 
-app.use("/", routes);
+/*
+---------------------------------
+DASHBOARD ROUTE
+---------------------------------
+*/
+app.get("/dashboard", (req, res) => {
+  res.send("Dungeon SSS Trader Dashboard Online")
+})
 
-const server = http.createServer(app);
+/*
+---------------------------------
+ROOT ROUTE
+---------------------------------
+*/
+app.get("/", (req, res) => {
+  res.json({
+    service: "Dungeon SSS Trader API",
+    status: "running"
+  })
+})
 
-server.listen(PORT, () => {
-  console.log("Dungeon SSS Trader API running on port", PORT);
+/*
+---------------------------------
+SERVER START
+---------------------------------
+*/
 
-  attachRealtime(server);
+const PORT = process.env.PORT || 3000
 
-  if (process.env.NODE_ENV !== "test") {
-    console.log("🌍 Starting world engine...");
+const server = http.createServer(app)
 
-    startWorldLoop(getWorldState(), {
-      onTick: () => {
-        broadcast("world:update", {
-          world: getApiWorldState(),
-          telemetry: getTelemetry(getWorldState())
-        });
-      },
-      onMobSpawn: (payload) => {
-        broadcast("world:mob_spawn", payload);
-      },
-      onEvent: (payload) => {
-        broadcast("world:event", payload);
-      },
-      onEconomyTick: (payload) => {
-        broadcast("economy:update", payload);
-      },
-      onBossSpawn: (payload) => {
-        broadcast("boss:spawn", payload);
-      }
-    });
-  }
-});
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("Dungeon SSS Trader running on port:", PORT)
+})
