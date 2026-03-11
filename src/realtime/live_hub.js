@@ -14,6 +14,10 @@ function safeSend(client, data) {
 }
 
 function attachRealtime(server) {
+  if (wss) {
+    return wss;
+  }
+
   wss = new WebSocket.Server({ server, path: "/ws" });
 
   wss.on("connection", (socket) => {
@@ -30,17 +34,35 @@ function attachRealtime(server) {
 
       try {
         parsed = JSON.parse(String(raw));
-      } catch {
+      } catch (err) {
+        safeSend(socket, {
+          type: "system:error",
+          payload: {
+            ok: false,
+            error: "invalid_json"
+          }
+        });
         return;
       }
 
       if (parsed?.type === "ping") {
         safeSend(socket, {
           type: "pong",
-          payload: { ts: Date.now() }
+          payload: {
+            ts: Date.now()
+          }
+        });
+      }
+
+      if (parsed?.type === "echo") {
+        safeSend(socket, {
+          type: "echo",
+          payload: parsed.payload || null
         });
       }
     });
+
+    socket.on("close", () => {});
   });
 
   return wss;
