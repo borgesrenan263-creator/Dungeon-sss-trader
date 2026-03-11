@@ -12,6 +12,7 @@ const dashboardRoutes = require("./dashboard.routes");
 const leaderboardRoutes = require("./leaderboard.routes");
 const analyticsRoutes = require("./analytics.routes");
 const telemetryRoutes = require("./telemetry.routes");
+const realtimeRoutes = require("./realtime.routes");
 
 const router = express.Router();
 
@@ -35,5 +36,6 @@ router.use("/dashboard", dashboardRoutes);
 router.use("/leaderboard", leaderboardRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/telemetry", telemetryRoutes);
+router.use("/realtime", realtimeRoutes);
 
 module.exports = router;

@@ -143,7 +143,7 @@ function processEconomyTick() {
   return trade;
 }
 
-function startWorldLoop(state = worldState) {
+function startWorldLoop(state = worldState, hooks = {}) {
   if (started) {
     return intervalRef;
   }
@@ -151,30 +151,63 @@ function startWorldLoop(state = worldState) {
   started = true;
   markWorldLoopStarted();
 
+  const onTick = typeof hooks.onTick === "function" ? hooks.onTick : null;
+  const onMobSpawn = typeof hooks.onMobSpawn === "function" ? hooks.onMobSpawn : null;
+  const onEvent = typeof hooks.onEvent === "function" ? hooks.onEvent : null;
+  const onEconomyTick = typeof hooks.onEconomyTick === "function" ? hooks.onEconomyTick : null;
+  const onBossSpawn = typeof hooks.onBossSpawn === "function" ? hooks.onBossSpawn : null;
+
   console.log("🌍 World simulation started");
 
   intervalRef = setInterval(() => {
     state.ticks += 1;
     worldState.ticks = state.ticks;
 
+    if (onTick) {
+      onTick(worldState);
+    }
+
     if (Math.random() < 0.6) {
       const mob = spawnWorldMob();
       console.log("🌍 World Spawn:", mob, "| Total spawns:", worldState.mobsSpawned);
+
+      if (onMobSpawn) {
+        onMobSpawn({
+          mob,
+          total: worldState.mobsSpawned,
+          ticks: worldState.ticks
+        });
+      }
     }
 
     if (Math.random() < 0.15) {
       const event = triggerGlobalEvent();
       console.log("📢 Evento Global:", event);
+
+      if (onEvent) {
+        onEvent({
+          event,
+          ticks: worldState.ticks
+        });
+      }
     }
 
     if (state.ticks % 5 === 0) {
       const trade = processEconomyTick();
       console.log("💹 Economy Tick:", trade.type, trade.itemId, "| preço:", trade.price);
+
+      if (onEconomyTick) {
+        onEconomyTick(trade);
+      }
     }
 
     const boss = maybeSpawnGalaxyBoss();
     if (boss) {
       console.log("👑 Galaxy Boss surgiu no mundo:", boss.name);
+
+      if (onBossSpawn) {
+        onBossSpawn(boss);
+      }
     }
   }, 2000);
 
