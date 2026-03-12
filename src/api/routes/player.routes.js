@@ -2,14 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const { ok, fail } = require("../../utils/api.response");
-const { getPlayerByName, ensurePlayer, getAllPlayers } = require("../state/game.state");
+const playerService = require("../../services/player.service");
 
 /*
 POST /player/create
-Aceita:
-- { name: "Hero" }
-- { nickname: "Hero" }
-- { name: "Hero", nickname: "HeroNick" }
 */
 router.post("/create", (req, res) => {
   const body = req.body || {};
@@ -22,16 +18,16 @@ router.post("/create", (req, res) => {
     });
   }
 
-  const player = ensurePlayer(name, nickname);
+  const player = playerService.createPlayer(name, nickname);
 
   return ok(res, { player });
 });
 
 /*
-GET /player/:name
+GET /player/online
 */
 router.get("/online", (req, res) => {
-  const online = getAllPlayers().filter((p) => p.isOnline);
+  const online = playerService.getOnlinePlayers();
   return ok(res, { online });
 });
 
@@ -49,8 +45,7 @@ router.post("/login", (req, res) => {
     });
   }
 
-  const player = ensurePlayer(name, nickname);
-  player.isOnline = true;
+  const player = playerService.loginPlayer(name, nickname);
 
   return ok(res, { player });
 });
@@ -68,8 +63,11 @@ router.post("/logout", (req, res) => {
     });
   }
 
-  const player = ensurePlayer(name, name);
-  player.isOnline = false;
+  const player = playerService.logoutPlayer(name);
+
+  if (!player) {
+    return fail(res, "player_not_found", 404);
+  }
 
   return ok(res, { player });
 });
@@ -78,7 +76,7 @@ router.post("/logout", (req, res) => {
 GET /player/:name/status
 */
 router.get("/:name/status", (req, res) => {
-  const player = getPlayerByName(req.params.name);
+  const player = playerService.getPlayerStatus(req.params.name);
 
   if (!player) {
     return fail(res, "player_not_found", 404);
@@ -91,12 +89,6 @@ router.get("/:name/status", (req, res) => {
 POST /player/:name/move-sector
 */
 router.post("/:name/move-sector", (req, res) => {
-  const player = getPlayerByName(req.params.name);
-
-  if (!player) {
-    return fail(res, "player_not_found", 404);
-  }
-
   const { sector } = req.body || {};
 
   if (typeof sector !== "number") {
@@ -105,7 +97,11 @@ router.post("/:name/move-sector", (req, res) => {
     });
   }
 
-  player.sector = sector;
+  const player = playerService.movePlayerSector(req.params.name, sector);
+
+  if (!player) {
+    return fail(res, "player_not_found", 404);
+  }
 
   return ok(res, {
     moved: {
@@ -119,10 +115,9 @@ router.post("/:name/move-sector", (req, res) => {
 
 /*
 GET /player/:name
-deixa por último para não capturar /online antes
 */
 router.get("/:name", (req, res) => {
-  const player = getPlayerByName(req.params.name);
+  const player = playerService.getPlayer(req.params.name);
 
   if (!player) {
     return fail(res, "player_not_found", 404);
@@ -131,7 +126,8 @@ router.get("/:name", (req, res) => {
   return ok(res, {
     profile: {
       player
-    }
+    },
+    player
   });
 });
 
