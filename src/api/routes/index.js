@@ -1,6 +1,8 @@
 const express = require("express");
 const playerRoutes = require("./player.routes");
 const playersRoutes = require("./players.routes");
+const authRoutes = require("./auth.routes");
+const runtimeRoutes = require("./runtime.routes");
 const equipmentRoutes = require("./equipment.routes");
 const inventoryRoutes = require("./inventory.routes");
 const multiplayerRoutes = require("./multiplayer.routes");
@@ -20,6 +22,8 @@ const router = express.Router();
 
 router.use("/player", playerRoutes);
 router.use("/players", playersRoutes);
+router.use("/auth", authRoutes);
+router.use("/runtime", runtimeRoutes);
 router.use("/equipment", equipmentRoutes);
 router.use("/inventory", inventoryRoutes);
 router.use("/multiplayer", multiplayerRoutes);

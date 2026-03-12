@@ -3,14 +3,30 @@ const {
   getPlayerByName,
   getAllPlayers
 } = require("../api/state/game.state");
+const { emitGameEvent } = require("../realtime/game.events");
 
 function createPlayer(name, nickname) {
-  return ensurePlayer(name, nickname);
+  const player = ensurePlayer(name, nickname);
+
+  emitGameEvent("player.created", {
+    name: player.name,
+    nickname: player.nickname,
+    level: player.level
+  });
+
+  return player;
 }
 
 function loginPlayer(name, nickname) {
   const player = ensurePlayer(name, nickname || name);
   player.isOnline = true;
+
+  emitGameEvent("player.login", {
+    name: player.name,
+    nickname: player.nickname,
+    level: player.level
+  });
+
   return player;
 }
 
@@ -19,6 +35,13 @@ function logoutPlayer(name) {
   if (!player) return null;
 
   player.isOnline = false;
+
+  emitGameEvent("player.logout", {
+    name: player.name,
+    nickname: player.nickname,
+    level: player.level
+  });
+
   return player;
 }
 
@@ -34,7 +57,16 @@ function movePlayerSector(name, sector) {
   const player = getPlayerByName(name);
   if (!player) return null;
 
+  const fromSector = player.sector;
   player.sector = sector;
+
+  emitGameEvent("player.move_sector", {
+    name: player.name,
+    nickname: player.nickname,
+    fromSector,
+    toSector: player.sector
+  });
+
   return player;
 }
 
