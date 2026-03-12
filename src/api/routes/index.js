@@ -1,6 +1,6 @@
 const express = require("express");
-
 const playerRoutes = require("./player.routes");
+const playersRoutes = require("./players.routes");
 const equipmentRoutes = require("./equipment.routes");
 const inventoryRoutes = require("./inventory.routes");
 const multiplayerRoutes = require("./multiplayer.routes");
@@ -19,7 +19,7 @@ const galaxyRoutes = require("./galaxy.routes");
 const router = express.Router();
 
 router.use("/player", playerRoutes);
-router.use("/players", playerRoutes);
+router.use("/players", playersRoutes);
 router.use("/equipment", equipmentRoutes);
 router.use("/inventory", inventoryRoutes);
 router.use("/multiplayer", multiplayerRoutes);

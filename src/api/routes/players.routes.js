@@ -1,110 +1,130 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-  ensurePlayersTables,
-  createPlayer,
-  getAllPlayers,
-  getPlayerById
-} = require("../../repositories/players.repository");
+const { ok, fail } = require("../../utils/api.response");
+const playerService = require("../../services/player.service");
 
-const { initDB, saveDB } = require("../../config/database");
+/*
+POST /players/create
+*/
+router.post("/create", (req, res) => {
+  const body = req.body || {};
+  const name = body.name || body.nickname;
+  const nickname = body.nickname || body.name;
 
-ensurePlayersTables();
-
-router.post("/create", async (req, res) => {
-  try {
-    const { nickname, className } = req.body;
-
-    const allowedClasses = ["Cavaleiro", "Mago", "Caçador"];
-
-    if (!allowedClasses.includes(className)) {
-      return res.status(400).json({
-        ok: false,
-        error: "className must be Cavaleiro, Mago or Caçador"
-      });
-    }
-
-    const player = await createPlayer({ nickname, className });
-
-    return res.status(201).json({
-      ok: true,
-      player
-    });
-  } catch (error) {
-    return res.status(400).json({
-      ok: false,
-      error: error.message
+  if (!name) {
+    return fail(res, "validation_error", 400, {
+      message: "name or nickname required"
     });
   }
+
+  const player = playerService.createPlayer(name, nickname);
+  return ok(res, { player });
 });
 
-router.get("/", async (req, res) => {
-  try {
-    const players = await getAllPlayers();
+/*
+POST /players/login
+*/
+router.post("/login", (req, res) => {
+  const body = req.body || {};
+  const name = body.name || body.nickname;
+  const nickname = body.nickname || body.name;
 
-    return res.json({
-      ok: true,
-      total: players.length,
-      players
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
+  if (!name) {
+    return fail(res, "validation_error", 400, {
+      message: "name or nickname required"
     });
   }
+
+  const player = playerService.loginPlayer(name, nickname);
+  return ok(res, { player });
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const player = await getPlayerById(req.params.id);
+/*
+POST /players/logout
+*/
+router.post("/logout", (req, res) => {
+  const body = req.body || {};
+  const name = body.name || body.nickname;
 
-    if (!player) {
-      return res.status(404).json({
-        ok: false,
-        error: "player not found"
-      });
-    }
-
-    return res.json({
-      ok: true,
-      player
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      error: error.message
+  if (!name) {
+    return fail(res, "validation_error", 400, {
+      message: "name or nickname required"
     });
   }
+
+  const player = playerService.logoutPlayer(name);
+
+  if (!player) {
+    return fail(res, "player_not_found", 404);
+  }
+
+  return ok(res, { player });
 });
 
-router.post("/wallet/add-usdt", async (req, res) => {
-  try {
-    const { playerId, amount } = req.body;
+/*
+GET /players/online
+*/
+router.get("/online", (req, res) => {
+  const online = playerService.getOnlinePlayers();
+  return ok(res, { online });
+});
 
-    const db = await initDB();
+/*
+GET /players/:name/status
+*/
+router.get("/:name/status", (req, res) => {
+  const player = playerService.getPlayerStatus(req.params.name);
 
-    db.run(
-      `UPDATE currencies
-       SET usdt = usdt + ?
-       WHERE player_id = ?;`,
-      [Number(amount), Number(playerId)]
-    );
+  if (!player) {
+    return fail(res, "player_not_found", 404);
+  }
 
-    saveDB();
+  return ok(res, { status: player });
+});
 
-    return res.json({
-      ok: true,
-      player_id: Number(playerId),
-      usdt_added: Number(amount)
-    });
-  } catch (error) {
-    return res.status(400).json({
-      ok: false,
-      error: error.message
+/*
+POST /players/:name/move-sector
+*/
+router.post("/:name/move-sector", (req, res) => {
+  const { sector } = req.body || {};
+
+  if (typeof sector !== "number") {
+    return fail(res, "validation_error", 400, {
+      message: "sector must be numeric"
     });
   }
+
+  const player = playerService.movePlayerSector(req.params.name, sector);
+
+  if (!player) {
+    return fail(res, "player_not_found", 404);
+  }
+
+  return ok(res, {
+    moved: {
+      moved: {
+        sector: player.sector
+      }
+    },
+    player
+  });
+});
+
+/*
+GET /players/:name
+*/
+router.get("/:name", (req, res) => {
+  const player = playerService.getPlayer(req.params.name);
+
+  if (!player) {
+    return fail(res, "player_not_found", 404);
+  }
+
+  return ok(res, {
+    profile: { player },
+    player
+  });
 });
 
 module.exports = router;
