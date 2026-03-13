@@ -1,85 +1,45 @@
-require("dotenv").config();
+const express = require("express")
+const path = require("path")
 
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
-const pinoHttp = require("pino-http");
+const routes = require("./api/routes")
 
-const logger = require("./utils/logger");
-const routes = require("./api/routes");
-const metricsMiddleware = require("./utils/metricsMiddleware");
-const { client } = require("./utils/metrics");
-const cache = require("./utils/cache");
+const { notFoundHandler, errorHandler } = require("./middlewares/error.middleware")
 
-const app = express();
+const {
+  securityHeaders,
+  simpleCors,
+  simpleRateLimit
+} = require("./middlewares/security.middleware")
 
-app.use(pinoHttp({ logger }));
-app.use(metricsMiddleware);
+const app = express()
 
-app.use(helmet());
-app.use(cors());
+app.disable("x-powered-by")
 
-app.use(express.json({ limit: "300kb" }));
-app.use(express.urlencoded({ extended: true, limit: "300kb" }));
+app.use(securityHeaders)
+app.use(simpleCors)
+app.use(simpleRateLimit({ windowMs: 60 * 1000, max: 120 }))
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 120,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    ok: false,
-    error: "too_many_requests"
-  }
-});
+app.use(express.json({ limit: "100kb" }))
+app.use(express.urlencoded({ extended: false, limit: "50kb" }))
 
-app.use(limiter);
-app.use(express.static("public"));
+app.use(express.static(path.join(process.cwd(), "public"), {
+  etag: true,
+  maxAge: "5m"
+}))
 
+/* HEALTH CHECK */
 app.get("/health", (req, res) => {
-  res.json({
+  res.status(200).json({
     ok: true,
-    server: "running",
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-    cache: {
-      keys: cache.keys().length,
-      stats: cache.getStats()
-    },
-    lastEvent: cache.get("world:last_event") || null
-  });
-});
+    server: "running"
+  })
+})
 
-app.get("/metrics", async (req, res) => {
-  try {
-    res.set("Content-Type", client.register.contentType);
-    res.end(await client.register.metrics());
-  } catch (error) {
-    res.status(500).json({
-      ok: false,
-      error: error.message
-    });
-  }
-});
+/* API ROUTES */
+app.use("/", routes)
 
-app.use("/", routes);
+/* ERRORS */
+app.use(notFoundHandler)
+app.use(errorHandler)
 
-app.use((req, res) => {
-  res.status(404).json({
-    ok: false,
-    error: "route_not_found",
-    path: req.originalUrl
-  });
-});
-
-app.use((err, req, res, next) => {
-  logger.error({ err }, "GLOBAL_ERROR");
-
-  res.status(err.status || 500).json({
-    ok: false,
-    error: err.message || "internal_server_error"
-  });
-});
-
-module.exports = app;
+module.exports = app

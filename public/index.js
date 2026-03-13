@@ -1,9 +1,7 @@
 const status = document.getElementById("status");
-const btn = document.getElementById("createBtn");
+const button = document.getElementById("createBtn");
 
-status.innerText = "SCRIPT EXECUTOU";
-
-btn.onclick = async () => {
+button.onclick = async () => {
   status.innerText = "BOTÃO CLICADO";
 
   const nickname = document.getElementById("nickname").value.trim();
@@ -14,15 +12,16 @@ btn.onclick = async () => {
     return;
   }
 
-  status.innerText = "ENVIANDO...";
+  status.innerText = "ENTRANDO...";
 
   try {
-    const res = await fetch("/player/create", {
+    const res = await fetch("/players/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        name: nickname,
         nickname,
         playerClass
       })
@@ -39,8 +38,8 @@ btn.onclick = async () => {
     }
 
     if (data.ok && data.player) {
-      localStorage.setItem("player", JSON.stringify(data.player));
-      status.innerText = "PERSONAGEM CRIADO";
+      localStorage.setItem("playerName", data.player.name || data.player.nickname);
+      status.innerText = "LOGIN OK";
       window.location.href = "/hub.html";
       return;
     }
